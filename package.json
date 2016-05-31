@@ -1,0 +1,27 @@
+{
+  "name": "MY",
+  "version": "1.0.0",
+  "description": "MVVM Observe frontend",
+  "main": "bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frontoldman/MY.git"
+  },
+  "keywords": [
+    "MVVM"
+  ],
+  "author": "zr",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/frontoldman/MY/issues"
+  },
+  "homepage": "https://github.com/frontoldman/MY",
+  "devDependencies": {
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "rollup-plugin-babel": "^2.4.0"
+  }
+}
