@@ -50,7 +50,7 @@ function parseTextNode(node, vm) {
   let execResult;
 
   while(execResult = interpolationReg.exec(nodeValue)){
-    console.log(vm.data)
+    //console.log(vm.data)
   }
 
 }

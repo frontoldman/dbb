@@ -17,9 +17,7 @@ export default class MY {
   get $el() {
     return this._$el;
   }
-  get data() {
-    return this._data;
-  }
+  
 
 }
 

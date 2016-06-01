@@ -19,6 +19,11 @@
         data: {
             message: 'Hello MY',
             title: 'this is title'
+        },
+        computed: {
+            word(data, computed) {
+                return this.message + this.title;
+            }
         }
     })
 

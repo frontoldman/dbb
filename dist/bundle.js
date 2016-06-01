@@ -30,6 +30,30 @@
     };
   }();
 
+  babelHelpers.inherits = function (subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  };
+
+  babelHelpers.possibleConstructorReturn = function (self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  };
+
   babelHelpers;
 
   /**
@@ -65,7 +89,7 @@
    * @param vm
    */
 
-  function _compile (vm) {
+  function compile (vm) {
     var $el = vm.$el;
 
     var childNodes = $el.childNodes;
@@ -106,8 +130,62 @@
     var execResult = void 0;
 
     while (execResult = interpolationReg.exec(nodeValue)) {
-      console.log(vm.data);
+      //console.log(vm.data)
     }
+  }
+
+  /**
+   * Created by zhangran on 16/6/1.
+   */
+
+  /**
+   * 封装data => class, 添加属性读取器
+   * @param vm
+   */
+
+  function data (vm) {
+    var data = vm._data;
+
+    var Data = function Data() {
+      babelHelpers.classCallCheck(this, Data);
+    };
+
+    var _loop = function _loop(item) {
+      var DataNoop = function (_Data) {
+        babelHelpers.inherits(DataNoop, _Data);
+
+        function DataNoop() {
+          babelHelpers.classCallCheck(this, DataNoop);
+
+          var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DataNoop).call(this));
+
+          _this[item] = data[item];
+          return _this;
+        }
+
+        babelHelpers.createClass(DataNoop, [{
+          key: item,
+          get: function get() {
+            return this['_' + item];
+          },
+          set: function set(value) {
+            this['_' + item] = value;
+          }
+        }]);
+        return DataNoop;
+      }(Data);
+
+      Data = DataNoop;
+    };
+
+    for (var item in data) {
+      _loop(item);
+    }
+
+    var result = new Data();
+    console.log(result.message);
+
+    //vm.data = new Data();
   }
 
   var MY = function () {
@@ -117,28 +195,14 @@
       this._$el = document.querySelector(options.el);
       this._data = options.data;
 
-      this.compile();
+      compile(this);
+      data(this);
     }
 
     babelHelpers.createClass(MY, [{
-      key: 'compile',
-      value: function compile() {
-        _compile(this);
-      }
-    }, {
       key: '$el',
       get: function get() {
         return this._$el;
-      }
-    }, {
-      key: 'data',
-      get: function get() {
-        return this._data;
-      }
-    }, {
-      key: 'sex',
-      set: function set(sex) {
-        console.log(sex);
       }
     }]);
     return MY;
