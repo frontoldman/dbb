@@ -2,17 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>MY TEST</title>
 </head>
 <body>
 
-<div id="content"></div>
+<div id="content">
+    {{ message }}
+    {{ name }}
+    <div :title="title"></div>
+</div>
 
-<script src="/dist/bundle.js"></script>
+<script src="../dist/bundle.js"></script>
 <script>
-    new MY({
-        el: '#content'
+    var vm = new MY({
+        el: '#content',
+        data: {
+            message: 'Hello MY',
+            title: 'this is title'
+        }
     })
+
+    //console.log(vm.$el);
 </script>
 </body>
 </html>

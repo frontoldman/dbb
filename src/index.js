@@ -1,17 +1,27 @@
 /**
  * Created by zhangran on 16/5/31.
  */
+import compile from './init/compile'
 
 
-/**
- * init MY
- * @param options
- */
-export default function(options) {
+export default class MY {
+  constructor(options) {
+    this._$el = document.querySelector(options.el);
+    this._data = options.data;
 
-  this.$el = document.querySelector(options.el);
-
-  
+    this.compile();
+  }
+  get $el() {
+    return this._$el;
+  }
+  get data() {
+    return this._data;
+  }
+  compile() {
+    compile(this);
+  }
 
 }
+
+
 
