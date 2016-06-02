@@ -12,30 +12,70 @@ import dep from './dep'
  */
 
 export default function(computed, MY) {
-  class Computed extends MY{}
+  class ComputedClass extends MY{}
 
+  let C1 = getComputedClass(ComputedClass, computed, true);
+  let C2 = getComputedClass(C1, computed, false);
+
+  return C2;
+}
+
+/**
+ * 计算表达式 => Class
+ * @param ComputedClass 类
+ * @param computed option computed
+ * @param addDep 是否注册依赖
+ * @returns {*}
+ */
+
+function getComputedClass(ComputedClass, computed, addDep){
   for(let item in computed){
-    let _val, computedFn;
-    class ComputedNoop extends Computed{
+    let _val, _deps = [];
+    class ComputedNoop extends ComputedClass{
       constructor(){
         super();
-        dep.now = {
-          name: item,
-          fn: computed[item]
-        };
+
+        if(addDep){
+          dep.now = {
+            name: item,
+            fn: computed[item],
+            random: Math.random()
+          };
+        }
+
         this[item] = computed[item].call(this);
-        dep.now = null;
+
+        if(addDep){
+          dep.now = null;
+        }
       }
       get [item]() {
+        if(dep.now){
+          _deps.push(dep.now)
+        }
         return _val;
       }
       set [item](value) {
+        
         _val = value;
+        console.log(addDep)
+        if(addDep){
+          return;
+        }
+
+        console.log(item)
+        console.log(_deps)
+        let computedObj;
+        for(let i = 0, l = _deps.length;i<l;i++){
+          computedObj = _deps[i];
+          //console.log(computedObj)
+          //this[computedObj.name] = computedObj.fn.call(this)
+        }
       }
     }
 
-    Computed = ComputedNoop;
+    ComputedClass = ComputedNoop;
   }
 
-  return Computed;
+  return ComputedClass;
 }

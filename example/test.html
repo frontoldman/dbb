@@ -18,21 +18,31 @@
         el: '#content',
         data: {
             message: 'Hello MY',
-            title: 'this is title',
+            title: 'title',
             name: ' I am name'
         },
         computed: {
+            enWord() {
+                return  'English ' + this.word;
+            },
             word() {
                 return this.message + ': ' + this.title;
-            }
+            },
         }
     })
 
-    console.log(vm1.message);
-    console.log(vm1.word);
+//    console.log(vm1.message);
+//    console.log(vm1.word);
+//    console.log(vm1.enWord);
 
-    vm1.title = '哈哈';
-    console.log(vm1.word);
+//    vm1.message = 'houxian'
+
+//    console.log(vm1.message);
+//    console.log(vm1.word);
+//    console.log(vm1.enWord);
+
+
+
 
 
 </script>

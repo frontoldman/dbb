@@ -240,58 +240,98 @@
    */
 
   function initComputed (computed, MY) {
-    var Computed = function (_MY) {
-      babelHelpers.inherits(Computed, _MY);
+    var ComputedClass = function (_MY) {
+      babelHelpers.inherits(ComputedClass, _MY);
 
-      function Computed() {
-        babelHelpers.classCallCheck(this, Computed);
-        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Computed).apply(this, arguments));
+      function ComputedClass() {
+        babelHelpers.classCallCheck(this, ComputedClass);
+        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedClass).apply(this, arguments));
       }
 
-      return Computed;
+      return ComputedClass;
     }(MY);
 
+    var C1 = getComputedClass(ComputedClass, computed, true);
+    var C2 = getComputedClass(C1, computed, false);
+
+    return C2;
+  }
+
+  /**
+   * 计算表达式 => Class
+   * @param ComputedClass 类
+   * @param computed option computed
+   * @param addDep 是否注册依赖
+   * @returns {*}
+   */
+
+  function getComputedClass(ComputedClass, computed, addDep) {
     var _loop = function _loop(item) {
       var _val = void 0,
-          computedFn = void 0;
+          _deps = [];
 
-      var ComputedNoop = function (_Computed) {
-        babelHelpers.inherits(ComputedNoop, _Computed);
+      var ComputedNoop = function (_ComputedClass) {
+        babelHelpers.inherits(ComputedNoop, _ComputedClass);
 
         function ComputedNoop() {
           babelHelpers.classCallCheck(this, ComputedNoop);
 
           var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
 
-          dep.now = {
-            name: item,
-            fn: computed[item]
-          };
+          if (addDep) {
+            dep.now = {
+              name: item,
+              fn: computed[item],
+              random: Math.random()
+            };
+          }
+
           _this2[item] = computed[item].call(_this2);
-          dep.now = null;
+
+          if (addDep) {
+            dep.now = null;
+          }
           return _this2;
         }
 
         babelHelpers.createClass(ComputedNoop, [{
           key: item,
           get: function get() {
+            if (dep.now) {
+              _deps.push(dep.now);
+            }
             return _val;
           },
           set: function set(value) {
             _val = value;
+
+            console.log(addDep);
+
+            if (addDep) {
+              return;
+            }
+
+            console.log(item);
+            console.log(_deps);
+            var computedObj = void 0;
+            for (var i = 0, l = _deps.length; i < l; i++) {
+              computedObj = _deps[i];
+              //console.log(computedObj)
+              //this[computedObj.name] = computedObj.fn.call(this)
+            }
           }
         }]);
         return ComputedNoop;
-      }(Computed);
+      }(ComputedClass);
 
-      Computed = ComputedNoop;
+      ComputedClass = ComputedNoop;
     };
 
     for (var item in computed) {
       _loop(item);
     }
 
-    return Computed;
+    return ComputedClass;
   }
 
   function index (options) {
