@@ -15,19 +15,22 @@ export default function(computed, MY) {
   class Computed extends MY{}
 
   for(let item in computed){
-    let val;
+    let _val, computedFn;
     class ComputedNoop extends Computed{
       constructor(){
         super();
-        dep.now = item;
+        dep.now = {
+          name: item,
+          fn: computed[item]
+        };
         this[item] = computed[item].call(this);
         dep.now = null;
       }
       get [item]() {
-        return val;
+        return _val;
       }
       set [item](value) {
-        val = value;
+        _val = value;
       }
     }
 

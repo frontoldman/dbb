@@ -186,8 +186,8 @@
     }(MY);
 
     var _loop = function _loop(item) {
-      var depKey = item + '-dep';
-      var val = void 0;
+      var _val = void 0,
+          _deps = [];
 
       var DataNoop = function (_Data) {
         babelHelpers.inherits(DataNoop, _Data);
@@ -198,7 +198,6 @@
           var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DataNoop).call(this));
 
           _this2[item] = data[item];
-          dep[depKey] = [];
           return _this2;
         }
 
@@ -206,12 +205,18 @@
           key: item,
           get: function get() {
             if (dep.now !== null) {
-              dep[depKey].push(dep.now);
+              _deps.push(dep.now);
             }
-            return val;
+            return _val;
           },
           set: function set(value) {
-            val = value;
+            _val = value;
+
+            var computedObj = void 0;
+            for (var i = 0, l = _deps.length; i < l; i++) {
+              computedObj = _deps[i];
+              this[computedObj.name] = computedObj.fn.call(this);
+            }
           }
         }]);
         return DataNoop;
@@ -247,7 +252,8 @@
     }(MY);
 
     var _loop = function _loop(item) {
-      var val = void 0;
+      var _val = void 0,
+          computedFn = void 0;
 
       var ComputedNoop = function (_Computed) {
         babelHelpers.inherits(ComputedNoop, _Computed);
@@ -257,7 +263,10 @@
 
           var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
 
-          dep.now = item;
+          dep.now = {
+            name: item,
+            fn: computed[item]
+          };
           _this2[item] = computed[item].call(_this2);
           dep.now = null;
           return _this2;
@@ -266,10 +275,10 @@
         babelHelpers.createClass(ComputedNoop, [{
           key: item,
           get: function get() {
-            return val;
+            return _val;
           },
           set: function set(value) {
-            val = value;
+            _val = value;
           }
         }]);
         return ComputedNoop;

@@ -14,7 +14,7 @@
 
 <script src="../dist/bundle.js"></script>
 <script>
-    var vm = MY({
+    var vm1 = MY({
         el: '#content',
         data: {
             message: 'Hello MY',
@@ -28,8 +28,12 @@
         }
     })
 
-    console.log(vm.message);
-    console.log(vm.word);
+    console.log(vm1.message);
+    console.log(vm1.word);
+
+    vm1.title = '哈哈';
+    console.log(vm1.word);
+
 
 </script>
 </body>

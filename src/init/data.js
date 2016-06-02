@@ -15,23 +15,26 @@ export default function(data,MY) {
   class Data extends MY{}
 
   for(let item in data){
-    let depKey = `${item}-dep`;
-    let val;
+    let _val, _deps = [];
     class DataNoop extends Data{
       constructor(){
         super();
         this[item] = data[item];
-        dep[depKey] = [];
       }
-
       get [item]() {
         if(dep.now !== null){
-          dep[depKey].push(dep.now);
+          _deps.push(dep.now);
         }
-        return val;
+        return _val;
       }
       set [item](value) {
-        val = value;
+        _val = value;
+
+        let computedObj;
+        for(let i = 0, l = _deps.length;i<l;i++){
+          computedObj = _deps[i];
+          this[computedObj.name] = computedObj.fn.call(this)
+        }
       }
     }
     Data = DataNoop;
