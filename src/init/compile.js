@@ -8,11 +8,11 @@ const interpolationReg = new RegExp(`${iB}((?:.|\\n)+?)${iE}`, 'img');
 
 /**
  * 编译dom
- * @param vm
+ * @param $el
  */
 
-export default function(vm) {
-  const { $el } = vm;
+export default function($el) {
+
   const childNodes = $el.childNodes;
   const childAry = slice(childNodes);
 

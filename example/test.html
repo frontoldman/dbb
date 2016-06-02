@@ -14,20 +14,23 @@
 
 <script src="../dist/bundle.js"></script>
 <script>
-    var vm = new MY({
+    var vm = MY({
         el: '#content',
         data: {
             message: 'Hello MY',
-            title: 'this is title'
+            title: 'this is title',
+            name: ' I am name'
         },
         computed: {
-            word(data, computed) {
-                return this.message + this.title;
+            word() {
+                return this.message + ': ' + this.title;
             }
         }
     })
 
-    //console.log(vm.$el);
+    console.log(vm.message);
+    console.log(vm.word)
+
 </script>
 </body>
 </html>

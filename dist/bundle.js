@@ -61,91 +61,12 @@
    */
 
   /**
-   * 转换类数组对象为数组
-   * @param arrryLike
-   * @returns {Array.<*>}
-   */
-
-  function slice(arrryLike) {
-    return [].slice.call(arrryLike);
-  }
-
-  /**
-   * Created by zhangran on 16/6/1.
-   */
-
-  /**
-   *
-   * @type {string}
-   */
-
-  var interpolationBegin = '{{';
-  var interpolationEnd = '}}';
-
-  var interpolationReg = new RegExp(interpolationBegin + '((?:.|\\n)+?)' + interpolationEnd, 'img');
-
-  /**
-   * 编译dom
-   * @param vm
-   */
-
-  function compile (vm) {
-    var $el = vm.$el;
-
-    var childNodes = $el.childNodes;
-    var childAry = slice(childNodes);
-
-    childAry.forEach(function (child) {
-      distribution(child, vm);
-    });
-  }
-
-  /**
-   * 分发节点编译
-   * @param node
-   * @param vm
-   */
-
-  function distribution(node, vm) {
-    var nodeType = node.nodeType;
-
-    switch (nodeType) {
-      case 1:
-        break;
-      case 3:
-        parseTextNode(node, vm);
-        break;
-    }
-  }
-
-  /**
-   * 编译text文本节点
-   * @param node text dom 节点
-   * @param vm vm实例
-   */
-
-  function parseTextNode(node, vm) {
-    var nodeValue = node.nodeValue;
-
-    var execResult = void 0;
-
-    while (execResult = interpolationReg.exec(nodeValue)) {
-      //console.log(vm.data)
-    }
-  }
-
-  /**
-   * Created by zhangran on 16/6/1.
-   */
-
-  /**
    * 封装data => class, 添加属性读取器
-   * @param vm
+   * @param data
+   * @returns {Data} 类 Data
    */
 
-  function data (vm) {
-    var data = vm._data;
-
+  function initData (data) {
     var Data = function Data() {
       babelHelpers.classCallCheck(this, Data);
     };
@@ -159,6 +80,7 @@
 
           var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DataNoop).call(this));
 
+          console.log(item);
           _this[item] = data[item];
           return _this;
         }
@@ -182,32 +104,90 @@
       _loop(item);
     }
 
-    var result = new Data();
-    console.log(result.message);
-
-    //vm.data = new Data();
+    return Data;
   }
 
-  var MY = function () {
-    function MY(options) {
-      babelHelpers.classCallCheck(this, MY);
+  /**
+   * Created by zhangran on 16/6/2.
+   */
 
-      this._$el = document.querySelector(options.el);
-      this._data = options.data;
+  /**
+   * 封装 computed => class, 添加计算属性读取器
+   * @param computed
+   * @returns {Computed}
+   */
 
-      compile(this);
-      data(this);
+  function initComputed (computed, MY) {
+    var Computed = function (_MY) {
+      babelHelpers.inherits(Computed, _MY);
+
+      function Computed() {
+        babelHelpers.classCallCheck(this, Computed);
+        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Computed).apply(this, arguments));
+      }
+
+      return Computed;
+    }(MY);
+
+    var _loop = function _loop(item) {
+      var ComputedNoop = function (_Computed) {
+        babelHelpers.inherits(ComputedNoop, _Computed);
+
+        function ComputedNoop() {
+          babelHelpers.classCallCheck(this, ComputedNoop);
+
+          var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
+
+          _this2[item] = computed[item].call(_this2);
+          return _this2;
+        }
+
+        babelHelpers.createClass(ComputedNoop, [{
+          key: item,
+          get: function get() {
+            return this['_' + item];
+          },
+          set: function set(value) {
+            this['_' + item] = value;
+          }
+        }]);
+        return ComputedNoop;
+      }(Computed);
+
+      Computed = ComputedNoop;
+    };
+
+    for (var item in computed) {
+      _loop(item);
     }
 
-    babelHelpers.createClass(MY, [{
-      key: '$el',
-      get: function get() {
-        return this._$el;
-      }
-    }]);
-    return MY;
-  }();
+    return Computed;
+  }
 
-  return MY;
+  function index (options) {
+    var $el = document.querySelector(options.el);
+    var data = options.data;
+    var computed = options.computed;
+
+
+    var DataClass = initData(data);
+
+    var MY = function (_DataClass) {
+      babelHelpers.inherits(MY, _DataClass);
+
+      function MY() {
+        babelHelpers.classCallCheck(this, MY);
+        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(MY).apply(this, arguments));
+      }
+
+      return MY;
+    }(DataClass);
+
+    MY = initComputed(computed, MY);
+
+    return new MY();
+  }
+
+  return index;
 
 }));

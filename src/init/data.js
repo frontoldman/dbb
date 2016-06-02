@@ -4,11 +4,11 @@
 
 /**
  * 封装data => class, 添加属性读取器
- * @param vm
+ * @param data
+ * @returns {Data} 类 Data
  */
 
-export default function(vm) {
-  const data = vm._data;
+export default function(data) {
   class Data{}
 
   for(let item in data){
@@ -27,6 +27,5 @@ export default function(vm) {
     Data = DataNoop;
   }
 
-  vm.data = new Data();
-
+  return Data
 }
