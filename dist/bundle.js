@@ -61,37 +61,157 @@
    */
 
   /**
+   * 转换类数组对象为数组
+   * @param arrryLike
+   * @returns {Array.<*>}
+   */
+
+  function slice(arrryLike) {
+    var start = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+
+    return [].slice.call(arrryLike, start);
+  }
+
+  /**
+   * event 精简版的事件系统
+   *
+   * https://github.com/vuejs/vue/blob/dev/src/instance/api/events.js
+   */
+
+  var Event = function () {
+    function Event() {
+      babelHelpers.classCallCheck(this, Event);
+
+      this._events = {};
+    }
+
+    /**
+     * 添加事件
+     * @param event
+     * @param fn
+     */
+
+
+    babelHelpers.createClass(Event, [{
+      key: '$on',
+      value: function $on(event, fn) {
+        (this._events[event] || (this._events[event] = [])).push(fn);
+      }
+
+      /**
+       * 移除事件
+       * @param event
+       * @param fn
+       */
+
+    }, {
+      key: '$off',
+      value: function $off(event, fn) {
+        if (arguments.length) {
+          this._events = {};
+          return;
+        }
+
+        var cbs = this._events[event];
+        if (!cbs) {
+          return this;
+        }
+
+        if (arguments.length === 1) {
+          this._events[event] = null;
+          return this;
+        }
+
+        var cb = void 0;
+        var i = cbs.length;
+        while (i--) {
+          cb = cbs[i];
+          if (cb === fn) {
+            cbs.splice(i, 1);
+            break;
+          }
+        }
+      }
+
+      /**
+       * 触发事件
+       * @param event
+       */
+
+    }, {
+      key: '$emit',
+      value: function $emit(event) {
+        var cbs = this._events[event];
+        var args = slice(arguments, 1);
+        if (cbs) {
+          for (var i = 0, l = cbs.length; i < l; i++) {
+            var cb = cbs[i];
+            cb.apply(this, args);
+          }
+        }
+      }
+    }]);
+    return Event;
+  }();
+
+  /**
+   * Created by zhangran on 16/6/2.
+   */
+
+  /**
+   * 依赖列表
+   */
+
+  var dep = {
+    now: null
+  };
+
+  /**
    * 封装data => class, 添加属性读取器
    * @param data
+   * @param MY class
    * @returns {Data} 类 Data
    */
 
-  function initData (data) {
-    var Data = function Data() {
-      babelHelpers.classCallCheck(this, Data);
-    };
+  function initData (data, MY) {
+    var Data = function (_MY) {
+      babelHelpers.inherits(Data, _MY);
+
+      function Data() {
+        babelHelpers.classCallCheck(this, Data);
+        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Data).apply(this, arguments));
+      }
+
+      return Data;
+    }(MY);
 
     var _loop = function _loop(item) {
+      var depKey = item + '-dep';
+      var val = void 0;
+
       var DataNoop = function (_Data) {
         babelHelpers.inherits(DataNoop, _Data);
 
         function DataNoop() {
           babelHelpers.classCallCheck(this, DataNoop);
 
-          var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DataNoop).call(this));
+          var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DataNoop).call(this));
 
-          console.log(item);
-          _this[item] = data[item];
-          return _this;
+          _this2[item] = data[item];
+          dep[depKey] = [];
+          return _this2;
         }
 
         babelHelpers.createClass(DataNoop, [{
           key: item,
           get: function get() {
-            return this['_' + item];
+            if (dep.now !== null) {
+              dep[depKey].push(dep.now);
+            }
+            return val;
           },
           set: function set(value) {
-            this['_' + item] = value;
+            val = value;
           }
         }]);
         return DataNoop;
@@ -108,13 +228,10 @@
   }
 
   /**
-   * Created by zhangran on 16/6/2.
-   */
-
-  /**
    * 封装 computed => class, 添加计算属性读取器
-   * @param computed
-   * @returns {Computed}
+   * @param computed computed options
+   * @param MY MY Class
+   * @returns {Computed} Class extends Data...
    */
 
   function initComputed (computed, MY) {
@@ -130,6 +247,8 @@
     }(MY);
 
     var _loop = function _loop(item) {
+      var val = void 0;
+
       var ComputedNoop = function (_Computed) {
         babelHelpers.inherits(ComputedNoop, _Computed);
 
@@ -138,17 +257,19 @@
 
           var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
 
+          dep.now = item;
           _this2[item] = computed[item].call(_this2);
+          dep.now = null;
           return _this2;
         }
 
         babelHelpers.createClass(ComputedNoop, [{
           key: item,
           get: function get() {
-            return this['_' + item];
+            return val;
           },
           set: function set(value) {
-            this['_' + item] = value;
+            val = value;
           }
         }]);
         return ComputedNoop;
@@ -169,11 +290,8 @@
     var data = options.data;
     var computed = options.computed;
 
-
-    var DataClass = initData(data);
-
-    var MY = function (_DataClass) {
-      babelHelpers.inherits(MY, _DataClass);
+    var MY = function (_Event) {
+      babelHelpers.inherits(MY, _Event);
 
       function MY() {
         babelHelpers.classCallCheck(this, MY);
@@ -181,11 +299,14 @@
       }
 
       return MY;
-    }(DataClass);
+    }(Event);
 
+    MY = initData(data, MY);
     MY = initComputed(computed, MY);
 
-    return new MY();
+    var vm = new MY();
+    console.log(dep);
+    return vm;
   }
 
   return index;

@@ -8,8 +8,8 @@
  * @returns {Array.<*>}
  */
 
-export function slice(arrryLike) {
-  return [].slice.call(arrryLike)
+export function slice(arrryLike, start=0) {
+  return [].slice.call(arrryLike, start)
 }
 
 
