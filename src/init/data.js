@@ -69,7 +69,12 @@ function deepObjectIn(data, item, root){
     class InnerDataNoop extends InnerData{
       constructor() {
         super()
-        this[innerItem] = data[item][innerItem];
+        if(typeof data[item][innerItem] === 'object'){
+          let InnerDataClass = deepObjectIn(data[item], innerItem, root);
+          this[innerItem] = new InnerDataClass();
+        }else{
+          this[innerItem] = data[item][innerItem];
+        }
       }
       get [innerItem]() {
 

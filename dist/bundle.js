@@ -281,7 +281,12 @@
 
           var _this3 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(InnerDataNoop).call(this));
 
-          _this3[innerItem] = data[item][innerItem];
+          if (babelHelpers.typeof(data[item][innerItem]) === 'object') {
+            var InnerDataClass = deepObjectIn(data[item], innerItem, root);
+            _this3[innerItem] = new InnerDataClass();
+          } else {
+            _this3[innerItem] = data[item][innerItem];
+          }
           return _this3;
         }
 

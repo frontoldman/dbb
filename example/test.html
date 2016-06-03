@@ -23,6 +23,11 @@
             house: {
                 width: 100,
                 height: 200
+            },
+            group: {
+                p1: {
+                    name: 'lily'
+                }
             }
         },
         computed: {
@@ -34,17 +39,19 @@
             },
             area() {
                 return this.house.width * this.house.height;
+            },
+            groupP1Name() {
+                return this.group.p1.name
             }
         }
     })
 
+    console.log(vm1.group.p1.name);
+    console.log(vm1.groupP1Name);
 
-    console.log(vm1.house)
-    console.log(vm1.house.width)
-    console.log(vm1.area)
+    vm1.group.p1.name = 'guisun';
+    console.log(vm1.groupP1Name)
 
-    vm1.house.width = 10;
-    console.log(vm1.area)
 
 
 
