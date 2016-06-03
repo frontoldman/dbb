@@ -1,8 +1,8 @@
 /**
  * Created by zhangran on 16/5/31.
  */
-import { slice } from '../utils'
-import { interpolationBegin as iB, interpolationEnd as iE } from '../config'
+import {slice} from "../utils";
+import {interpolationBegin as iB, interpolationEnd as iE} from "../config";
 
 const interpolationReg = new RegExp(`${iB}((?:.|\\n)+?)${iE}`, 'img');
 
@@ -11,7 +11,7 @@ const interpolationReg = new RegExp(`${iB}((?:.|\\n)+?)${iE}`, 'img');
  * @param $el
  */
 
-export default function($el) {
+export default function ($el) {
 
   const childNodes = $el.childNodes;
   const childAry = slice(childNodes);
@@ -28,8 +28,8 @@ export default function($el) {
  */
 
 function distribution(node, vm) {
-  const { nodeType } = node;
-  switch(nodeType) {
+  const {nodeType} = node;
+  switch (nodeType) {
     case 1:
       break;
     case 3:
@@ -46,10 +46,10 @@ function distribution(node, vm) {
  */
 
 function parseTextNode(node, vm) {
-  const { nodeValue } = node;
+  const {nodeValue} = node;
   let execResult;
 
-  while(execResult = interpolationReg.exec(nodeValue)){
+  while (execResult = interpolationReg.exec(nodeValue)) {
     //console.log(vm.data)
   }
 

@@ -2,7 +2,7 @@
  * Created by zhangran on 16/6/2.
  */
 
-import dep from './dep'
+import dep from "./dep";
 
 /**
  * 封装 computed => class, 添加计算属性读取器
@@ -11,8 +11,9 @@ import dep from './dep'
  * @returns {Computed} Class extends Data...
  */
 
-export default function(computed, MY) {
-  class ComputedClass extends MY{}
+export default function (computed, MY) {
+  class ComputedClass extends MY {
+  }
 
   let C1 = getComputedClass(ComputedClass, computed, true);
   let C2 = getComputedClass(C1, computed, false);
@@ -28,32 +29,34 @@ export default function(computed, MY) {
  * @returns {*}
  */
 
-function getComputedClass(ComputedClass, computed, addDep){
+function getComputedClass(ComputedClass, computed, addDep) {
 
-  for(let item in computed){
+  for (let item in computed) {
     let _val, _deps = [];
-    class ComputedNoop extends ComputedClass{
-      constructor(){
+    class ComputedNoop extends ComputedClass {
+      constructor() {
         super();
-        if(addDep){
+        if (addDep) {
           dep.now = {
             name: item,
             fn: computed[item]
           };
         }
         this[item] = computed[item].call(this);
-        if(addDep){
+        if (addDep) {
           dep.now = null;
         }
       }
+
       get [item]() {
-        if(dep.now){
+        if (dep.now) {
           _deps.push(dep.now)
         }
         return _val;
       }
+
       set [item](value) {
-        if(value === _val){
+        if (value === _val) {
           return;
         }
         _val = value;
