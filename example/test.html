@@ -30,33 +30,34 @@
                 },
                 p2: {
                     name: 'lily1111'
-                }
+                },
+                p3: {}
             }
         },
         computed: {
-            enWord() {
-                return  'English ' + this.word;
-            },
-            word() {
-                return this.message + ': ' + this.title;
-            },
-            area() {
-                return this.house.width * this.house.height;
-            },
+//            enWord() {
+//                return  'English ' + this.word;
+//            },
+//            word() {
+//                return this.message + ': ' + this.title;
+//            },
+//            area() {
+//                return this.house.width * this.house.height;
+//            },
             groupP1Name() {
-                return this.group.p1.name
+                return this.group.p3.name
             },
-            groupP2Name() {
-                return this.group.p2.name
-            }
+//            groupP2Name() {
+//                return this.group.p2.name
+//            }
         }
     })
 
-    console.log(vm1.group.p1.name);
-    vm1.group.p1.name = '22'
+//    console.log(vm1.groupP1Name)
+//    vm1.group.p3 = { name: 1 }
+//    console.log(vm1.groupP1Name)
+    vm1.group.p3.name = 2;
     console.log(vm1.groupP1Name)
-
-
 
 
 

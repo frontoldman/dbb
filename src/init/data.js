@@ -29,7 +29,8 @@ function deepObjectIn(data, extendsClass, type) {
   }
   let extendInstance
   if (type === 1) {
-    class InnerData extends extendsClass {}
+    class InnerData extends extendsClass {
+    }
   } else if (type === 2) {
     class InnerData {
     }
@@ -47,7 +48,9 @@ function deepObjectIn(data, extendsClass, type) {
           extendInstance = extendsClass;
         }
 
-        if (typeof data[innerItem] === 'object') {
+        if (Array.isArray(data[innerItem])) {
+
+        } else if (typeof data[innerItem] === 'object') {
           let InnerDataClass = deepObjectIn(data[innerItem], extendInstance, 2);
           this[innerItem] = new InnerDataClass();
         } else {
@@ -56,10 +59,10 @@ function deepObjectIn(data, extendsClass, type) {
       }
 
       get [innerItem]() {
-
         if (dep.now !== null) {
           _deps.push(dep.now);
         }
+
         return _val;
       }
 
@@ -78,7 +81,13 @@ function deepObjectIn(data, extendsClass, type) {
           self = extendInstance;
         }
 
-        //console.log(extendInstance)
+        if (Array.isArray(value)) {
+
+        } else if (typeof value === 'object') {
+          
+        } else {
+
+        }
 
         dep.emitDeps.call(self, _deps)
       }
@@ -100,7 +109,6 @@ function deepObjectIn(data, extendsClass, type) {
 function deepArrayIn(data, item, root) {
   class InnerData {
   }
-  ;
 
   for (let i = 0, l = data.length; i < l; i++) {
     let _val, _deps = [];

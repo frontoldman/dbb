@@ -244,7 +244,7 @@
             extendInstance = extendsClass;
           }
 
-          if (babelHelpers.typeof(data[innerItem]) === 'object') {
+          if (Array.isArray(data[innerItem])) {} else if (babelHelpers.typeof(data[innerItem]) === 'object') {
             var InnerDataClass = deepObjectIn(data[innerItem], extendInstance, 2);
             _this2[innerItem] = new InnerDataClass();
           } else {
@@ -256,10 +256,10 @@
         babelHelpers.createClass(InnerDataNoop, [{
           key: innerItem,
           get: function get() {
-
             if (dep.now !== null) {
               _deps.push(dep.now);
             }
+
             return _val;
           },
           set: function set(value) {
@@ -277,7 +277,7 @@
               self = extendInstance;
             }
 
-            //console.log(extendInstance)
+            if (Array.isArray(value)) {} else if ((typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value)) === 'object') {} else {}
 
             dep.emitDeps.call(self, _deps);
           }
