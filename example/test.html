@@ -27,6 +27,9 @@
             group: {
                 p1: {
                     name: 'lily'
+                },
+                p2: {
+                    name: 'lily1111'
                 }
             }
         },
@@ -42,15 +45,18 @@
             },
             groupP1Name() {
                 return this.group.p1.name
+            },
+            groupP2Name() {
+                return this.group.p2.name
             }
         }
     })
 
-    console.log(vm1.group.p1.name);
-    console.log(vm1.groupP1Name);
+    console.log(vm1.group.p2.name);
+    console.log(vm1.groupP2Name);
 
-    vm1.group.p1.name = 'guisun';
-    console.log(vm1.groupP1Name)
+    vm1.group.p2.name = 'guisun';
+    console.log(vm1.groupP2Name)
 
 
 
