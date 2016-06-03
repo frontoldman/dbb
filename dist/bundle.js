@@ -5,6 +5,11 @@
 }(this, function () { 'use strict';
 
   var babelHelpers = {};
+  babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
 
   babelHelpers.classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -164,6 +169,12 @@
 
   var dep = {
     now: null,
+
+    /**
+     * 触发依赖列表
+     * @param deps 依赖列表
+     */
+
     emitDeps: function emitDeps(deps) {
       var computedObj = void 0;
       for (var i = 0, l = deps.length; i < l; i++) {
@@ -204,7 +215,12 @@
 
           var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DataNoop).call(this));
 
-          _this2[item] = data[item];
+          if (babelHelpers.typeof(data[item]) === 'object') {
+            var InnerDataClass = deepObjectIn(data, item, _this2);
+            _this2[item] = new InnerDataClass();
+          } else {
+            _this2[item] = data[item];
+          }
           return _this2;
         }
 
@@ -220,7 +236,6 @@
             if (value === _val) {
               return;
             }
-
             _val = value;
 
             dep.emitDeps.call(this, _deps);
@@ -237,6 +252,68 @@
     }
 
     return Data;
+  }
+
+  /**
+   * 判断data值是否是对象或者数组, 是的话首先观察
+   * @param data
+   * @param item
+   * @param root
+   * @returns {InnerData}
+   */
+
+  function deepObjectIn(data, item, root) {
+    var InnerData = function InnerData() {
+      babelHelpers.classCallCheck(this, InnerData);
+    };
+
+    ;
+
+    var _loop2 = function _loop2(innerItem) {
+      var _val = void 0,
+          _deps = [];
+
+      var InnerDataNoop = function (_InnerData) {
+        babelHelpers.inherits(InnerDataNoop, _InnerData);
+
+        function InnerDataNoop() {
+          babelHelpers.classCallCheck(this, InnerDataNoop);
+
+          var _this3 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(InnerDataNoop).call(this));
+
+          _this3[innerItem] = data[item][innerItem];
+          return _this3;
+        }
+
+        babelHelpers.createClass(InnerDataNoop, [{
+          key: innerItem,
+          get: function get() {
+
+            if (dep.now !== null) {
+              _deps.push(dep.now);
+            }
+            return _val;
+          },
+          set: function set(value) {
+
+            if (value === _val) {
+              return;
+            }
+            _val = value;
+            dep.emitDeps.call(root, _deps);
+          }
+        }]);
+        return InnerDataNoop;
+      }(InnerData);
+
+      InnerData = InnerDataNoop;
+    };
+
+    for (var innerItem in data[item]) {
+      _loop2(innerItem);
+    }
+
+    return InnerData;
   }
 
   /**
@@ -288,8 +365,7 @@
           if (addDep) {
             dep.now = {
               name: item,
-              fn: computed[item],
-              random: Math.random()
+              fn: computed[item]
             };
           }
           _this2[item] = computed[item].call(_this2);
@@ -313,12 +389,7 @@
             }
             _val = value;
 
-            var computedObj = void 0;
-            for (var i = 0, l = _deps.length; i < l; i++) {
-              computedObj = _deps[i];
-              // console.log(computedObj.name)
-              this[computedObj.name] = computedObj.fn.call(this);
-            }
+            dep.emitDeps.call(this, _deps);
           }
         }]);
         return ComputedNoop;

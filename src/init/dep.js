@@ -8,6 +8,12 @@
 
 export default {
   now: null,
+
+  /**
+   * 触发依赖列表
+   * @param deps 依赖列表
+   */
+
   emitDeps: function(deps) {
     let computedObj;
     for(let i = 0, l = deps.length;i<l;i++){

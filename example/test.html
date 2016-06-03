@@ -19,7 +19,11 @@
         data: {
             message: 'Hello MY',
             title: 'title',
-            name: ' I am name'
+            name: ' I am name',
+            house: {
+                width: 100,
+                height: 200
+            }
         },
         computed: {
             enWord() {
@@ -28,19 +32,19 @@
             word() {
                 return this.message + ': ' + this.title;
             },
+            area() {
+                return this.house.width * this.house.height;
+            }
         }
     })
 
-    console.log(vm1.message);
 
-    console.log(vm1.enWord);
-    console.log(vm1.word);
+    console.log(vm1.house)
+    console.log(vm1.house.width)
+    console.log(vm1.area)
 
-    vm1.message = 'houxian'
-
-    console.log(vm1.message);
-    console.log(vm1.word);
-    console.log(vm1.enWord);
+    vm1.house.width = 10;
+    console.log(vm1.area)
 
 
 

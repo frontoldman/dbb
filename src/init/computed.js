@@ -38,8 +38,7 @@ function getComputedClass(ComputedClass, computed, addDep){
         if(addDep){
           dep.now = {
             name: item,
-            fn: computed[item],
-            random: Math.random()
+            fn: computed[item]
           };
         }
         this[item] = computed[item].call(this);
