@@ -163,7 +163,14 @@
    */
 
   var dep = {
-    now: null
+    now: null,
+    emitDeps: function emitDeps(deps) {
+      var computedObj = void 0;
+      for (var i = 0, l = deps.length; i < l; i++) {
+        computedObj = deps[i];
+        this[computedObj.name] = computedObj.fn.call(this);
+      }
+    }
   };
 
   /**
@@ -210,13 +217,13 @@
             return _val;
           },
           set: function set(value) {
+            if (value === _val) {
+              return;
+            }
+
             _val = value;
 
-            var computedObj = void 0;
-            for (var i = 0, l = _deps.length; i < l; i++) {
-              computedObj = _deps[i];
-              this[computedObj.name] = computedObj.fn.call(this);
-            }
+            dep.emitDeps.call(this, _deps);
           }
         }]);
         return DataNoop;
@@ -285,9 +292,7 @@
               random: Math.random()
             };
           }
-
           _this2[item] = computed[item].call(_this2);
-
           if (addDep) {
             dep.now = null;
           }
@@ -303,21 +308,16 @@
             return _val;
           },
           set: function set(value) {
-            _val = value;
-
-            console.log(addDep);
-
-            if (addDep) {
+            if (value === _val) {
               return;
             }
+            _val = value;
 
-            console.log(item);
-            console.log(_deps);
             var computedObj = void 0;
             for (var i = 0, l = _deps.length; i < l; i++) {
               computedObj = _deps[i];
-              //console.log(computedObj)
-              //this[computedObj.name] = computedObj.fn.call(this)
+              // console.log(computedObj.name)
+              this[computedObj.name] = computedObj.fn.call(this);
             }
           }
         }]);

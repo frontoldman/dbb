@@ -28,13 +28,13 @@ export default function(data,MY) {
         return _val;
       }
       set [item](value) {
+        if(value === _val){
+          return;
+        }
+
         _val = value;
 
-        let computedObj;
-        for(let i = 0, l = _deps.length;i<l;i++){
-          computedObj = _deps[i];
-          this[computedObj.name] = computedObj.fn.call(this)
-        }
+        dep.emitDeps.call(this, _deps)
       }
     }
     Data = DataNoop;

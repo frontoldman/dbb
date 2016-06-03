@@ -29,12 +29,12 @@ export default function(computed, MY) {
  */
 
 function getComputedClass(ComputedClass, computed, addDep){
+
   for(let item in computed){
     let _val, _deps = [];
     class ComputedNoop extends ComputedClass{
       constructor(){
         super();
-
         if(addDep){
           dep.now = {
             name: item,
@@ -42,9 +42,7 @@ function getComputedClass(ComputedClass, computed, addDep){
             random: Math.random()
           };
         }
-
         this[item] = computed[item].call(this);
-
         if(addDep){
           dep.now = null;
         }
@@ -56,22 +54,14 @@ function getComputedClass(ComputedClass, computed, addDep){
         return _val;
       }
       set [item](value) {
-        
-        _val = value;
-        console.log(addDep)
-        if(addDep){
+        if(value === _val){
           return;
         }
+        _val = value;
 
-        console.log(item)
-        console.log(_deps)
-        let computedObj;
-        for(let i = 0, l = _deps.length;i<l;i++){
-          computedObj = _deps[i];
-          //console.log(computedObj)
-          //this[computedObj.name] = computedObj.fn.call(this)
-        }
+        dep.emitDeps.call(this, _deps)
       }
+
     }
 
     ComputedClass = ComputedNoop;

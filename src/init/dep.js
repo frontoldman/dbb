@@ -7,5 +7,12 @@
  */
 
 export default {
-  now: null
+  now: null,
+  emitDeps: function(deps) {
+    let computedObj;
+    for(let i = 0, l = deps.length;i<l;i++){
+      computedObj = deps[i];
+      this[computedObj.name] = computedObj.fn.call(this)
+    }
+  }
 }
