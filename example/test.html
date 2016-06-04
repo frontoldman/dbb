@@ -17,6 +17,8 @@
     var vm1 = MY({
         el: '#content',
         data: {
+            name: 'lily',
+            age: 18 ,
             group: {
                 p3: {}
             }
@@ -25,13 +27,20 @@
             groupP1Name() {
                 return this.group.p3.name
             },
+            getAge() {
+                return this.getName + " : " + this.age
+            },
+            getName() {
+                return this.name + ' hello';
+            }
+
 
         }
     })
 
-    vm1.group.p3.name = 2;
 //    console.log(vm1.groupP1Name)
-
+//    vm1.group.p3 = { name: 'haha' }
+//    console.log(vm1.group.p3)
 
 
 

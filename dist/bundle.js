@@ -184,6 +184,10 @@
     }
   };
 
+  var Noop = function Noop() {
+    babelHelpers.classCallCheck(this, Noop);
+  };
+
   /**
    * 封装data => class, 添加属性读取器
    * @param data
@@ -192,46 +196,38 @@
    */
 
   function initData (data, MY) {
-    return deepObjectIn(data, MY, 1);
+    return deepObjectIn(data, MY, null, 1);
   }
 
   /**
    * 判断data值是否是对象, 是的话首先观察
    * @param data
-   * @param root
+   * @param extendsClass
+   * @param vm vm实例
    * @param type : 1 MY | 2 : deepObj
    * @returns {InnerData}
    */
 
-  function deepObjectIn(data, extendsClass, type) {
-    var InnerData = function InnerData() {
-      babelHelpers.classCallCheck(this, InnerData);
-    };
+  function deepObjectIn(data, extendsClass, vm, type) {
+    var InnerData = function (_extendsClass) {
+      babelHelpers.inherits(InnerData, _extendsClass);
+
+      function InnerData() {
+        babelHelpers.classCallCheck(this, InnerData);
+        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(InnerData).apply(this, arguments));
+      }
+
+      return InnerData;
+    }(extendsClass);
 
     var extendInstance = void 0;
-    if (type === 1) {
-      var _InnerData = function (_extendsClass) {
-        babelHelpers.inherits(_InnerData, _extendsClass);
-
-        function _InnerData() {
-          babelHelpers.classCallCheck(this, _InnerData);
-          return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(_InnerData).apply(this, arguments));
-        }
-
-        return _InnerData;
-      }(extendsClass);
-    } else if (type === 2) {
-      var _InnerData2 = function _InnerData2() {
-        babelHelpers.classCallCheck(this, _InnerData2);
-      };
-    }
 
     var _loop = function _loop(innerItem) {
       var _val = void 0,
           _deps = [];
 
-      var InnerDataNoop = function (_InnerData3) {
-        babelHelpers.inherits(InnerDataNoop, _InnerData3);
+      var InnerDataNoop = function (_InnerData) {
+        babelHelpers.inherits(InnerDataNoop, _InnerData);
 
         function InnerDataNoop() {
           babelHelpers.classCallCheck(this, InnerDataNoop);
@@ -241,14 +237,14 @@
           if (type === 1) {
             extendInstance = _this2;
           } else {
-            extendInstance = extendsClass;
+            extendInstance = vm;
           }
 
           if (Array.isArray(data[innerItem])) {} else if (babelHelpers.typeof(data[innerItem]) === 'object') {
-            var InnerDataClass = deepObjectIn(data[innerItem], extendInstance, 2);
-            _this2[innerItem] = new InnerDataClass();
+            var InnerDataClass = deepObjectIn(data[innerItem], Noop, extendInstance, 2);
+            _this2[innerItem] = _val = new InnerDataClass();
           } else {
-            _this2[innerItem] = data[innerItem];
+            _this2[innerItem] = _val = data[innerItem];
           }
           return _this2;
         }
@@ -256,8 +252,6 @@
         babelHelpers.createClass(InnerDataNoop, [{
           key: innerItem,
           get: function get() {
-
-            console.log(innerItem);
 
             if (dep.now !== null) {
               _deps.push(dep.now);
@@ -271,7 +265,9 @@
               return;
             }
 
-            _val = value;
+            /**
+             * 判断type, 确保this是根节点
+             */
 
             var self = void 0;
             if (type === 1) {
@@ -279,6 +275,23 @@
             } else if (type === 2) {
               self = extendInstance;
             }
+
+            if (Array.isArray(value)) {
+
+              /**
+               * 如果是对象,继续深入监听
+               */
+            } else if ((typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value)) === 'object') {
+
+                var InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
+                this[innerItem] = _val = new InnerDataClass();
+
+                //console.log(this.$emit)
+
+                //this.$emit('add-dep', innerItem)
+              } else {
+                  _val = value;
+                }
 
             dep.emitDeps.call(self, _deps);
           }
@@ -316,7 +329,8 @@
     }(MY);
 
     var C1 = getComputedClass(ComputedClass, computed, true);
-    var C2 = getComputedClass(C1, computed, false);
+
+    var C2 = getComputedClass(MY, computed, false, new C1());
 
     return C2;
   }
@@ -326,10 +340,11 @@
    * @param ComputedClass 类
    * @param computed option computed
    * @param addDep 是否注册依赖
+   * @param self this指向
    * @returns {*}
    */
 
-  function getComputedClass(ComputedClass, computed, addDep) {
+  function getComputedClass(ComputedClass, computed, addDep, self) {
     var _loop = function _loop(item) {
       var _val = void 0,
           _deps = [];
@@ -340,7 +355,7 @@
         function ComputedNoop() {
           babelHelpers.classCallCheck(this, ComputedNoop);
 
-          var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
+          var _this3 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
 
           if (addDep) {
             dep.now = {
@@ -348,11 +363,23 @@
               fn: computed[item]
             };
           }
-          _this2[item] = computed[item].call(_this2);
+
+          var _this = void 0;
+          if (self) {
+            _this = self;
+          } else {
+            _this = _this3;
+          }
+
+          _val = _this3[item] = computed[item].call(_this);
           if (addDep) {
             dep.now = null;
+
+            // this.$on('add-dep', () => {
+            //   comsole.log(11)
+            // })
           }
-          return _this2;
+          return _this3;
         }
 
         babelHelpers.createClass(ComputedNoop, [{
@@ -405,6 +432,8 @@
     MY = initComputed(computed, MY);
 
     var vm = new MY();
+
+    console.log(vm.$on);
     return vm;
   }
 

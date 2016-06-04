@@ -17,6 +17,8 @@ export default function (options) {
   MY = initComputed(computed, MY);
 
   const vm = new MY();
+
+  console.log(vm.$on)
   return vm;
 }
 

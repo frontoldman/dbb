@@ -16,7 +16,8 @@ export default function (computed, MY) {
   }
 
   let C1 = getComputedClass(ComputedClass, computed, true);
-  let C2 = getComputedClass(C1, computed, false);
+
+  let C2 = getComputedClass(MY, computed, false, new C1());
 
   return C2;
 }
@@ -26,10 +27,11 @@ export default function (computed, MY) {
  * @param ComputedClass 类
  * @param computed option computed
  * @param addDep 是否注册依赖
+ * @param self this指向
  * @returns {*}
  */
 
-function getComputedClass(ComputedClass, computed, addDep) {
+function getComputedClass(ComputedClass, computed, addDep, self) {
 
   for (let item in computed) {
     let _val, _deps = [];
@@ -42,9 +44,21 @@ function getComputedClass(ComputedClass, computed, addDep) {
             fn: computed[item]
           };
         }
-        this[item] = computed[item].call(this);
+
+        let _this ;
+        if(self){
+          _this = self;
+        }else{
+          _this = this;
+        }
+
+        _val = this[item] = computed[item].call(_this);
         if (addDep) {
           dep.now = null;
+
+          // this.$on('add-dep', () => {
+          //   comsole.log(11)
+          // })
         }
       }
 

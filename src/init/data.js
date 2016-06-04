@@ -4,6 +4,9 @@
 
 import dep from "./dep";
 
+
+class Noop{}
+
 /**
  * 封装data => class, 添加属性读取器
  * @param data
@@ -12,29 +15,23 @@ import dep from "./dep";
  */
 
 export default function (data, MY) {
-  return deepObjectIn(data, MY, 1)
+  return deepObjectIn(data, MY, null, 1);
 }
 
 
 /**
  * 判断data值是否是对象, 是的话首先观察
  * @param data
- * @param root
+ * @param extendsClass
+ * @param vm vm实例
  * @param type : 1 MY | 2 : deepObj
  * @returns {InnerData}
  */
 
-function deepObjectIn(data, extendsClass, type) {
-  class InnerData {
+function deepObjectIn(data, extendsClass, vm, type) {
+  class InnerData extends extendsClass {
   }
   let extendInstance
-  if (type === 1) {
-    class InnerData extends extendsClass {
-    }
-  } else if (type === 2) {
-    class InnerData {
-    }
-  }
 
   for (let innerItem in data) {
     let _val, _deps = [];
@@ -45,22 +42,20 @@ function deepObjectIn(data, extendsClass, type) {
         if (type === 1) {
           extendInstance = this;
         } else {
-          extendInstance = extendsClass;
+          extendInstance = vm;
         }
 
         if (Array.isArray(data[innerItem])) {
 
         } else if (typeof data[innerItem] === 'object') {
-          let InnerDataClass = deepObjectIn(data[innerItem], extendInstance, 2);
-          this[innerItem] = new InnerDataClass();
+          let InnerDataClass = deepObjectIn(data[innerItem], Noop, extendInstance, 2);
+          this[innerItem] = _val =  new InnerDataClass();
         } else {
-          this[innerItem] = data[innerItem];
+          this[innerItem] = _val = data[innerItem];
         }
       }
 
       get [innerItem]() {
-
-        console.log(innerItem)
 
         if (dep.now !== null) {
           _deps.push(dep.now);
@@ -75,13 +70,34 @@ function deepObjectIn(data, extendsClass, type) {
           return;
         }
 
-        _val = value;
+
+
+        /**
+         * 判断type, 确保this是根节点
+         */
 
         let self;
         if (type === 1) {
           self = this;
         } else if (type === 2) {
           self = extendInstance;
+        }
+
+        if(Array.isArray(value)){
+
+          /**
+           * 如果是对象,继续深入监听
+           */
+        }else if(typeof value === 'object'){
+
+            let InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
+            this[innerItem] = _val = new InnerDataClass();
+
+          //console.log(this.$emit)
+
+          //this.$emit('add-dep', innerItem)
+        }else{
+          _val = value;
         }
 
         dep.emitDeps.call(self, _deps)
@@ -93,6 +109,10 @@ function deepObjectIn(data, extendsClass, type) {
 
   return InnerData;
 }
+
+
+
+
 
 /**
  * 判断data值是否是数组, 是的话首先观察, 数组已经被转换成了对象
