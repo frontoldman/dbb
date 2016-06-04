@@ -12,11 +12,8 @@ import dep from "./dep";
  */
 
 export default function (computed, MY) {
-  class ComputedClass extends MY {
-  }
 
-  let C1 = getComputedClass(ComputedClass, computed, true);
-
+  let C1 = getComputedClass(MY, computed, true);
   let C2 = getComputedClass(MY, computed, false, new C1());
 
   return C2;
@@ -45,26 +42,43 @@ function getComputedClass(ComputedClass, computed, addDep, self) {
           };
         }
 
-        let _this ;
-        if(self){
+        let _this;
+        if (self) {
           _this = self;
-        }else{
+        } else {
           _this = this;
         }
 
-        _val = this[item] = computed[item].call(_this);
+        this[item] = _val = computed[item].call(_this);
         if (addDep) {
           dep.now = null;
-
-          // this.$on('add-dep', () => {
-          //   comsole.log(11)
-          // })
+        } else {
+          this.$on('add-dep', name => {
+            for (let innerItem in computed) {
+              dep.now = {
+                name: innerItem,
+                fn: computed[innerItem]
+              };
+              computed[innerItem].call(self)
+              dep.now = null;
+            }
+          })
         }
       }
 
       get [item]() {
         if (dep.now) {
-          _deps.push(dep.now)
+          var hasSame;
+          for(let i = 0,l = _deps.length;i<l;i++){
+            if(_deps[i].name === dep.now.name){
+              hasSame = true;
+              break;
+            }
+          }
+
+          if(!hasSame){
+            _deps.push(dep.now);
+          }
         }
         return _val;
       }

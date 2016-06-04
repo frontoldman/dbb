@@ -254,7 +254,18 @@
           get: function get() {
 
             if (dep.now !== null) {
-              _deps.push(dep.now);
+
+              var hasSame;
+              for (var i = 0, l = _deps.length; i < l; i++) {
+                if (_deps[i].name === dep.now.name) {
+                  hasSame = true;
+                  break;
+                }
+              }
+
+              if (!hasSame) {
+                _deps.push(dep.now);
+              }
             }
 
             return _val;
@@ -282,16 +293,15 @@
                * 如果是对象,继续深入监听
                */
             } else if ((typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value)) === 'object') {
-
                 var InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
                 this[innerItem] = _val = new InnerDataClass();
 
-                //console.log(this.$emit)
-
-                //this.$emit('add-dep', innerItem)
+                self.$emit('add-dep', innerItem);
               } else {
-                  _val = value;
-                }
+                _val = value;
+              }
+
+            console.log(_deps);
 
             dep.emitDeps.call(self, _deps);
           }
@@ -317,19 +327,8 @@
    */
 
   function initComputed (computed, MY) {
-    var ComputedClass = function (_MY) {
-      babelHelpers.inherits(ComputedClass, _MY);
 
-      function ComputedClass() {
-        babelHelpers.classCallCheck(this, ComputedClass);
-        return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedClass).apply(this, arguments));
-      }
-
-      return ComputedClass;
-    }(MY);
-
-    var C1 = getComputedClass(ComputedClass, computed, true);
-
+    var C1 = getComputedClass(MY, computed, true);
     var C2 = getComputedClass(MY, computed, false, new C1());
 
     return C2;
@@ -355,7 +354,7 @@
         function ComputedNoop() {
           babelHelpers.classCallCheck(this, ComputedNoop);
 
-          var _this3 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
+          var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
 
           if (addDep) {
             dep.now = {
@@ -368,25 +367,42 @@
           if (self) {
             _this = self;
           } else {
-            _this = _this3;
+            _this = _this2;
           }
 
-          _val = _this3[item] = computed[item].call(_this);
+          _this2[item] = _val = computed[item].call(_this);
           if (addDep) {
             dep.now = null;
-
-            // this.$on('add-dep', () => {
-            //   comsole.log(11)
-            // })
+          } else {
+            _this2.$on('add-dep', function (name) {
+              for (var innerItem in computed) {
+                dep.now = {
+                  name: innerItem,
+                  fn: computed[innerItem]
+                };
+                computed[innerItem].call(self);
+                dep.now = null;
+              }
+            });
           }
-          return _this3;
+          return _this2;
         }
 
         babelHelpers.createClass(ComputedNoop, [{
           key: item,
           get: function get() {
             if (dep.now) {
-              _deps.push(dep.now);
+              var hasSame;
+              for (var i = 0, l = _deps.length; i < l; i++) {
+                if (_deps[i].name === dep.now.name) {
+                  hasSame = true;
+                  break;
+                }
+              }
+
+              if (!hasSame) {
+                _deps.push(dep.now);
+              }
             }
             return _val;
           },
@@ -433,7 +449,6 @@
 
     var vm = new MY();
 
-    console.log(vm.$on);
     return vm;
   }
 

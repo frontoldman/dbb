@@ -18,7 +18,6 @@ export default function (options) {
 
   const vm = new MY();
 
-  console.log(vm.$on)
   return vm;
 }
 

@@ -24,23 +24,20 @@
             }
         },
         computed: {
-            groupP1Name() {
+            groupP3Name() {
                 return this.group.p3.name
             },
-            getAge() {
-                return this.getName + " : " + this.age
-            },
-            getName() {
-                return this.name + ' hello';
-            }
+
 
 
         }
     })
 
-//    console.log(vm1.groupP1Name)
-//    vm1.group.p3 = { name: 'haha' }
-//    console.log(vm1.group.p3)
+
+    console.log(vm1.group.p3.name);
+    vm1.group.p3 = {name: 'lily'}
+    console.log(vm1.groupP3Name)
+
 
 
 

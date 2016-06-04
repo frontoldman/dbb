@@ -5,7 +5,8 @@
 import dep from "./dep";
 
 
-class Noop{}
+class Noop {
+}
 
 /**
  * 封装data => class, 添加属性读取器
@@ -49,7 +50,7 @@ function deepObjectIn(data, extendsClass, vm, type) {
 
         } else if (typeof data[innerItem] === 'object') {
           let InnerDataClass = deepObjectIn(data[innerItem], Noop, extendInstance, 2);
-          this[innerItem] = _val =  new InnerDataClass();
+          this[innerItem] = _val = new InnerDataClass();
         } else {
           this[innerItem] = _val = data[innerItem];
         }
@@ -58,7 +59,18 @@ function deepObjectIn(data, extendsClass, vm, type) {
       get [innerItem]() {
 
         if (dep.now !== null) {
-          _deps.push(dep.now);
+
+          var hasSame;
+          for(let i = 0,l = _deps.length;i<l;i++){
+            if(_deps[i].name === dep.now.name){
+              hasSame = true;
+              break;
+            }
+          }
+          
+          if(!hasSame){
+            _deps.push(dep.now);
+          }
         }
 
         return _val;
@@ -69,7 +81,6 @@ function deepObjectIn(data, extendsClass, vm, type) {
         if (value === _val) {
           return;
         }
-
 
 
         /**
@@ -83,22 +94,22 @@ function deepObjectIn(data, extendsClass, vm, type) {
           self = extendInstance;
         }
 
-        if(Array.isArray(value)){
+        if (Array.isArray(value)) {
 
           /**
            * 如果是对象,继续深入监听
            */
-        }else if(typeof value === 'object'){
+        } else if (typeof value === 'object') {
+          let InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
+          this[innerItem] = _val = new InnerDataClass();
 
-            let InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
-            this[innerItem] = _val = new InnerDataClass();
+          self.$emit('add-dep', innerItem)
 
-          //console.log(this.$emit)
-
-          //this.$emit('add-dep', innerItem)
-        }else{
+        } else {
           _val = value;
         }
+
+        console.log(_deps);
 
         dep.emitDeps.call(self, _deps)
       }
@@ -109,9 +120,6 @@ function deepObjectIn(data, extendsClass, vm, type) {
 
   return InnerData;
 }
-
-
-
 
 
 /**
