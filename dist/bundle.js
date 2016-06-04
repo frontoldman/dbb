@@ -256,6 +256,9 @@
         babelHelpers.createClass(InnerDataNoop, [{
           key: innerItem,
           get: function get() {
+
+            console.log(innerItem);
+
             if (dep.now !== null) {
               _deps.push(dep.now);
             }
@@ -276,8 +279,6 @@
             } else if (type === 2) {
               self = extendInstance;
             }
-
-            if (Array.isArray(value)) {} else if ((typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value)) === 'object') {} else {}
 
             dep.emitDeps.call(self, _deps);
           }

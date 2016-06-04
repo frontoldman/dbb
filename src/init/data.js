@@ -59,6 +59,9 @@ function deepObjectIn(data, extendsClass, type) {
       }
 
       get [innerItem]() {
+
+        console.log(innerItem)
+
         if (dep.now !== null) {
           _deps.push(dep.now);
         }
@@ -79,14 +82,6 @@ function deepObjectIn(data, extendsClass, type) {
           self = this;
         } else if (type === 2) {
           self = extendInstance;
-        }
-
-        if (Array.isArray(value)) {
-
-        } else if (typeof value === 'object') {
-          
-        } else {
-
         }
 
         dep.emitDeps.call(self, _deps)
