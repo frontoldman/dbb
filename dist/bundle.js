@@ -193,7 +193,7 @@
       if (this.now !== null) {
         for (var i = 0, l = _deps.length; i < l; i++) {
           if (_deps[i].name === this.now.name) {
-            return;
+            return _deps;
           }
         }
         _deps.push(this.now);
@@ -203,6 +203,8 @@
     }
 
   };
+
+  var arr = [];
 
   var Noop = function Noop() {
     babelHelpers.classCallCheck(this, Noop);
@@ -275,7 +277,31 @@
         babelHelpers.createClass(InnerDataNoop, [{
           key: innerItem,
           get: function get() {
-            dep.plusDeps(_deps);
+
+            if (innerItem === 'name') {
+              arr.push(_deps);
+            }
+
+            if (arr.length === 2) {
+              console.log(arr);
+              console.log(arr[0] === arr[1]);
+            }
+
+            if (dep.now !== null) {
+
+              var hasSame;
+              for (var i = 0, l = _deps.length; i < l; i++) {
+                if (_deps[i].name === dep.now.name) {
+                  hasSame = true;
+                  break;
+                }
+              }
+
+              if (!hasSame) {
+                _deps.push(dep.now);
+              }
+            }
+
             return _val;
           },
           set: function set(value) {
@@ -366,7 +392,12 @@
         babelHelpers.createClass(InnerDataNoop, [{
           key: i,
           get: function get() {
+
+            console.log(dep.now);
+
             dep.plusDeps(_deps);
+
+            console.log(_deps);
             return _val;
           },
           set: function set(value) {

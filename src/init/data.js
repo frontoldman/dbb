@@ -4,7 +4,6 @@
 
 import dep from "./dep";
 
-
 class Noop {
 }
 
@@ -58,6 +57,14 @@ function deepObjectIn(data, extendsClass, vm, type) {
       }
 
       get [innerItem]() {
+        if(innerItem === 'name'){
+          arr.push(_deps)
+        }
+        if(arr.length === 2){
+          console.log(arr)
+          console.log(arr[0] === arr[1])
+        }
+
         dep.plusDeps(_deps);
         return _val;
       }
@@ -136,7 +143,12 @@ function deepArrayIn(data, root) {
       }
 
       get [i]() {
+
+        console.log(dep.now)
+
         dep.plusDeps(_deps);
+
+        console.log(_deps)
         return _val;
       }
 

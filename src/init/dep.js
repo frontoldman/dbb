@@ -32,7 +32,7 @@ export default {
     if (this.now !== null) {
       for(let i = 0,l = _deps.length;i<l;i++){
         if(_deps[i].name === this.now.name){
-          return;
+          return _deps;
         }
       }
       _deps.push(this.now);

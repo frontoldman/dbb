@@ -14,23 +14,22 @@
 
 <script src="../dist/bundle.js"></script>
 <script>
-    var vm1 = MY({
+    var vm = MY({
         el: '#content',
         data: {
-//            names: ['Lily'],
-            name: 'lily'
+            //names: ['Lily'],
+            p: {
+                name: 'lily'
+            }
         },
         computed: {
             name1() {
-                return this.name
+                return this.p.name
             }
         }
     })
 
 
-    console.log(vm1.name1);
-    vm1.name = 'Tom'
-    console.log(vm1.name1);
 
 </script>
 </body>
