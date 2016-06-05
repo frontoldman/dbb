@@ -17,20 +17,21 @@
     var vm = MY({
         el: '#content',
         data: {
-            //names: ['Lily'],
+            names: ['Lily'],
             p: {
                 name: 'lily'
             }
         },
         computed: {
-            name1() {
-                return this.p.name
+            name() {
+                return this.names[0]
             }
         }
     })
 
-    vm.p.name = 'Tom'
-    console.log(vm.name1)
+    console.log(vm.name)
+    vm.names[0] = 'Tom'
+    console.log(vm.name)
 
 </script>
 </body>

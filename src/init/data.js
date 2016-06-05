@@ -57,7 +57,7 @@ function deepObjectIn(data, extendsClass, vm, type) {
       }
 
       get [innerItem]() {
-        
+
         dep.plusDeps(_deps);
         return _val;
       }
@@ -136,12 +136,7 @@ function deepArrayIn(data, root) {
       }
 
       get [i]() {
-
-        console.log(dep.now)
-
         dep.plusDeps(_deps);
-
-        console.log(_deps)
         return _val;
       }
 
@@ -149,8 +144,11 @@ function deepArrayIn(data, root) {
         if (value === _val) {
           return;
         }
-
+        _val = value;
         dep.emitDeps.call(root, _deps)
+      }
+      push(value) {
+        
       }
     }
 
