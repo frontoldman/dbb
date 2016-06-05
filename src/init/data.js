@@ -144,8 +144,7 @@ function deepArrayIn(data, root) {
         if (value === _val) {
           return;
         }
-        console.log(i)
-        console.log(_deps)
+
         dep.emitDeps.call(root, _deps)
       }
     }

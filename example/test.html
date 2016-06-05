@@ -17,19 +17,20 @@
     var vm1 = MY({
         el: '#content',
         data: {
-            names: ['Lily']
+//            names: ['Lily'],
+            name: 'lily'
         },
         computed: {
             name1() {
-                return this.names[0]
+                return this.name
             }
         }
     })
 
-   // console.log(vm1.name1)
-    vm1.names[0] = 'Tom';
-    //console.log(vm1.name1);
 
+    console.log(vm1.name1);
+    vm1.name = 'Tom'
+    console.log(vm1.name1);
 
 </script>
 </body>

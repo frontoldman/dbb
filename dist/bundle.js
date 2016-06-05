@@ -366,15 +366,14 @@
         babelHelpers.createClass(InnerDataNoop, [{
           key: i,
           get: function get() {
-            _deps = dep.plusDeps(_deps);
+            dep.plusDeps(_deps);
             return _val;
           },
           set: function set(value) {
             if (value === _val) {
               return;
             }
-            console.log(i);
-            console.log(_deps);
+
             dep.emitDeps.call(root, _deps);
           }
         }]);
