@@ -19,7 +19,7 @@
         data: {
             names: ['Lily'],
             p: {
-                name: 'lily'
+
             }
         },
         computed: {
@@ -30,8 +30,12 @@
     })
 
     console.log(vm.name)
-    vm.names[0] = 'Tom'
+    vm.names = ['Tom']
     console.log(vm.name)
+
+//    console.log(vm.name)
+//    vm.p = { name: 'Tom' }
+//    console.log(vm.name)
 
 </script>
 </body>

@@ -45,15 +45,7 @@ function deepObjectIn(data, extendsClass, vm, type) {
           extendInstance = vm;
         }
 
-        if (Array.isArray(data[innerItem])) {
-          let InnerDataClass = deepArrayIn(data[innerItem], extendInstance);
-          this[innerItem] = _val = new InnerDataClass();
-        } else if (typeof data[innerItem] === 'object') {
-          let InnerDataClass = deepObjectIn(data[innerItem], Noop, extendInstance, 2);
-          this[innerItem] = _val = new InnerDataClass();
-        } else {
-          this[innerItem] = _val = data[innerItem];
-        }
+        _val = checkTypeIn(data[innerItem], extendInstance)
       }
 
       get [innerItem]() {
@@ -79,22 +71,10 @@ function deepObjectIn(data, extendsClass, vm, type) {
           self = extendInstance;
         }
 
-        /**
-         * 如果是数组,深入监听
-         */
-        if (Array.isArray(value)) {
+        _val = checkTypeIn(value, extendInstance);
 
-          /**
-           * 如果是对象,继续深入监听
-           */
-        } else if (typeof value === 'object') {
-          let InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
-          this[innerItem] = _val = new InnerDataClass();
-
+        if(Array.isArray(value) || typeof value === 'object'){
           self.$emit('add-dep', innerItem)
-
-        } else {
-          _val = value;
         }
 
         dep.emitDeps.call(self, _deps)
@@ -123,16 +103,7 @@ function deepArrayIn(data, root) {
     class InnerDataNoop extends InnerData {
       constructor() {
         super()
-
-        if (Array.isArray(data[i])) {
-          let InnerDataClass = deepArrayIn(data[i], root);
-          this[i] = _val = new InnerDataClass();
-        } else if (typeof data[i] === 'object') {
-          let InnerDataClass = deepObjectIn(data[i], Noop, root, 2);
-          this[i] = _val = new InnerDataClass();
-        } else {
-          this[i] = _val = data[i];
-        }
+        _val = checkTypeIn(data[i], root)
       }
 
       get [i]() {
@@ -157,4 +128,24 @@ function deepArrayIn(data, root) {
   }
 
   return InnerData;
+}
+
+
+/**
+ * 判断数据类型, 使用监听对象
+ * @param value
+ * @param extendInstance
+ * @returns {*}
+ */
+
+function checkTypeIn(value, extendInstance){
+  if (Array.isArray(value)) {
+    let InnerDataClass = deepArrayIn(value, extendInstance);
+    return new InnerDataClass();
+  } else if (typeof value === 'object') {
+    let InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
+    return new InnerDataClass();
+  } else {
+    return value;
+  }
 }

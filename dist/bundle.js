@@ -260,15 +260,7 @@
             extendInstance = vm;
           }
 
-          if (Array.isArray(data[innerItem])) {
-            var InnerDataClass = deepArrayIn(data[innerItem], extendInstance);
-            _this2[innerItem] = _val = new InnerDataClass();
-          } else if (babelHelpers.typeof(data[innerItem]) === 'object') {
-            var _InnerDataClass = deepObjectIn(data[innerItem], Noop, extendInstance, 2);
-            _this2[innerItem] = _val = new _InnerDataClass();
-          } else {
-            _this2[innerItem] = _val = data[innerItem];
-          }
+          _val = checkTypeIn(data[innerItem], extendInstance);
           return _this2;
         }
 
@@ -296,22 +288,11 @@
               self = extendInstance;
             }
 
-            /**
-             * 如果是数组,深入监听
-             */
-            if (Array.isArray(value)) {
+            _val = checkTypeIn(value, extendInstance);
 
-              /**
-               * 如果是对象,继续深入监听
-               */
-            } else if ((typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value)) === 'object') {
-                var InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
-                this[innerItem] = _val = new InnerDataClass();
-
-                self.$emit('add-dep', innerItem);
-              } else {
-                _val = value;
-              }
+            if (Array.isArray(value) || (typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value)) === 'object') {
+              self.$emit('add-dep', innerItem);
+            }
 
             dep.emitDeps.call(self, _deps);
           }
@@ -352,15 +333,7 @@
 
           var _this3 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(InnerDataNoop).call(this));
 
-          if (Array.isArray(data[i])) {
-            var InnerDataClass = deepArrayIn(data[i], root);
-            _this3[i] = _val = new InnerDataClass();
-          } else if (babelHelpers.typeof(data[i]) === 'object') {
-            var _InnerDataClass2 = deepObjectIn(data[i], Noop, root, 2);
-            _this3[i] = _val = new _InnerDataClass2();
-          } else {
-            _this3[i] = _val = data[i];
-          }
+          _val = checkTypeIn(data[i], root);
           return _this3;
         }
 
@@ -392,6 +365,25 @@
     }
 
     return InnerData;
+  }
+
+  /**
+   * 判断数据类型, 使用监听对象
+   * @param value
+   * @param extendInstance
+   * @returns {*}
+   */
+
+  function checkTypeIn(value, extendInstance) {
+    if (Array.isArray(value)) {
+      var InnerDataClass = deepArrayIn(value, extendInstance);
+      return new InnerDataClass();
+    } else if ((typeof value === 'undefined' ? 'undefined' : babelHelpers.typeof(value)) === 'object') {
+      var _InnerDataClass = deepObjectIn(value, Noop, extendInstance, 2);
+      return new _InnerDataClass();
+    } else {
+      return value;
+    }
   }
 
   /**
@@ -435,18 +427,14 @@
             name: item,
             fn: computed[item]
           };
-
           var _this = void 0;
           if (self) {
             _this = self;
           } else {
             _this = _this2;
           }
-
           _this2[item] = _val = computed[item].call(_this);
-
           dep.now = null;
-
           if (!addDep) {
             _this2.$on('add-dep', function (name) {
               for (var innerItem in computed) {
