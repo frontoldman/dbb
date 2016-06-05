@@ -57,14 +57,7 @@ function deepObjectIn(data, extendsClass, vm, type) {
       }
 
       get [innerItem]() {
-        if(innerItem === 'name'){
-          arr.push(_deps)
-        }
-        if(arr.length === 2){
-          console.log(arr)
-          console.log(arr[0] === arr[1])
-        }
-
+        
         dep.plusDeps(_deps);
         return _val;
       }

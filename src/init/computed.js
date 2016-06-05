@@ -14,7 +14,7 @@ import dep from "./dep";
 export default function (computed, MY) {
 
   let C1 = getComputedClass(MY, computed, true);
-  let C2 = getComputedClass(MY, computed, false, new C1());
+  let C2 = getComputedClass(C1, computed, false, new C1());
 
   return C2;
 }
@@ -49,7 +49,7 @@ function getComputedClass(ComputedClass, computed, addDep, self) {
           _this = this;
         }
 
-        this[item] = _val = computed[item].call(_this);
+        this[item] = _val = computed[item].call(this);
 
         if (addDep) {
           dep.now = null;

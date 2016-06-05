@@ -204,8 +204,6 @@
 
   };
 
-  var arr = [];
-
   var Noop = function Noop() {
     babelHelpers.classCallCheck(this, Noop);
   };
@@ -278,30 +276,7 @@
           key: innerItem,
           get: function get() {
 
-            if (innerItem === 'name') {
-              arr.push(_deps);
-            }
-
-            if (arr.length === 2) {
-              console.log(arr);
-              console.log(arr[0] === arr[1]);
-            }
-
-            if (dep.now !== null) {
-
-              var hasSame;
-              for (var i = 0, l = _deps.length; i < l; i++) {
-                if (_deps[i].name === dep.now.name) {
-                  hasSame = true;
-                  break;
-                }
-              }
-
-              if (!hasSame) {
-                _deps.push(dep.now);
-              }
-            }
-
+            dep.plusDeps(_deps);
             return _val;
           },
           set: function set(value) {
@@ -431,7 +406,7 @@
   function initComputed (computed, MY) {
 
     var C1 = getComputedClass(MY, computed, true);
-    var C2 = getComputedClass(MY, computed, false, new C1());
+    var C2 = getComputedClass(C1, computed, false, new C1());
 
     return C2;
   }
@@ -472,7 +447,7 @@
             _this = _this2;
           }
 
-          _this2[item] = _val = computed[item].call(_this);
+          _this2[item] = _val = computed[item].call(_this2);
 
           if (addDep) {
             dep.now = null;
