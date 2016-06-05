@@ -365,6 +365,9 @@
         }
 
         babelHelpers.createClass(InnerDataNoop, [{
+          key: 'push',
+          value: function push(value) {}
+        }, {
           key: i,
           get: function get() {
             dep.plusDeps(_deps);
@@ -401,7 +404,7 @@
   function initComputed (computed, MY) {
 
     var C1 = getComputedClass(MY, computed, true);
-    var C2 = getComputedClass(C1, computed, false, new C1());
+    var C2 = getComputedClass(MY, computed, false, new C1());
 
     return C2;
   }
@@ -428,12 +431,10 @@
 
           var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ComputedNoop).call(this));
 
-          if (addDep) {
-            dep.now = {
-              name: item,
-              fn: computed[item]
-            };
-          }
+          dep.now = {
+            name: item,
+            fn: computed[item]
+          };
 
           var _this = void 0;
           if (self) {
@@ -442,11 +443,11 @@
             _this = _this2;
           }
 
-          _this2[item] = _val = computed[item].call(_this2);
+          _this2[item] = _val = computed[item].call(_this);
 
-          if (addDep) {
-            dep.now = null;
-          } else {
+          dep.now = null;
+
+          if (!addDep) {
             _this2.$on('add-dep', function (name) {
               for (var innerItem in computed) {
                 dep.now = {

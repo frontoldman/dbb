@@ -147,8 +147,9 @@ function deepArrayIn(data, root) {
         _val = value;
         dep.emitDeps.call(root, _deps)
       }
+
       push(value) {
-        
+
       }
     }
 

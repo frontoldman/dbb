@@ -14,7 +14,7 @@ import dep from "./dep";
 export default function (computed, MY) {
 
   let C1 = getComputedClass(MY, computed, true);
-  let C2 = getComputedClass(C1, computed, false, new C1());
+  let C2 = getComputedClass(MY, computed, false, new C1());
 
   return C2;
 }
@@ -35,25 +35,19 @@ function getComputedClass(ComputedClass, computed, addDep, self) {
     class ComputedNoop extends ComputedClass {
       constructor() {
         super();
-        if (addDep) {
-          dep.now = {
-            name: item,
-            fn: computed[item]
-          };
-        }
-
+        dep.now = {
+          name: item,
+          fn: computed[item]
+        };
         let _this;
         if (self) {
           _this = self;
         } else {
           _this = this;
         }
-
-        this[item] = _val = computed[item].call(this);
-
-        if (addDep) {
-          dep.now = null;
-        } else {
+        this[item] = _val = computed[item].call(_this);
+        dep.now = null;
+        if (!addDep) {
           this.$on('add-dep', name => {
             for (let innerItem in computed) {
               dep.now = {
