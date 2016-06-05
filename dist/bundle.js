@@ -181,7 +181,27 @@
         computedObj = deps[i];
         this[computedObj.name] = computedObj.fn.call(this);
       }
+    },
+
+    /**
+     * 添加字段依赖
+     * @param _deps
+     */
+
+    plusDeps: function plusDeps(_deps) {
+
+      if (this.now !== null) {
+        for (var i = 0, l = _deps.length; i < l; i++) {
+          if (_deps[i].name === this.now.name) {
+            return;
+          }
+        }
+        _deps.push(this.now);
+      }
+
+      return _deps;
     }
+
   };
 
   var Noop = function Noop() {
@@ -240,9 +260,12 @@
             extendInstance = vm;
           }
 
-          if (Array.isArray(data[innerItem])) {} else if (babelHelpers.typeof(data[innerItem]) === 'object') {
-            var InnerDataClass = deepObjectIn(data[innerItem], Noop, extendInstance, 2);
+          if (Array.isArray(data[innerItem])) {
+            var InnerDataClass = deepArrayIn(data[innerItem], extendInstance);
             _this2[innerItem] = _val = new InnerDataClass();
+          } else if (babelHelpers.typeof(data[innerItem]) === 'object') {
+            var _InnerDataClass = deepObjectIn(data[innerItem], Noop, extendInstance, 2);
+            _this2[innerItem] = _val = new _InnerDataClass();
           } else {
             _this2[innerItem] = _val = data[innerItem];
           }
@@ -252,22 +275,7 @@
         babelHelpers.createClass(InnerDataNoop, [{
           key: innerItem,
           get: function get() {
-
-            if (dep.now !== null) {
-
-              var hasSame;
-              for (var i = 0, l = _deps.length; i < l; i++) {
-                if (_deps[i].name === dep.now.name) {
-                  hasSame = true;
-                  break;
-                }
-              }
-
-              if (!hasSame) {
-                _deps.push(dep.now);
-              }
-            }
-
+            dep.plusDeps(_deps);
             return _val;
           },
           set: function set(value) {
@@ -287,6 +295,9 @@
               self = extendInstance;
             }
 
+            /**
+             * 如果是数组,深入监听
+             */
             if (Array.isArray(value)) {
 
               /**
@@ -301,8 +312,6 @@
                 _val = value;
               }
 
-            console.log(_deps);
-
             dep.emitDeps.call(self, _deps);
           }
         }]);
@@ -314,6 +323,69 @@
 
     for (var innerItem in data) {
       _loop(innerItem);
+    }
+
+    return InnerData;
+  }
+
+  /**
+   * 判断data值是否是数组, 是的话首先观察, 数组已经被转换成了对象
+   * @param data
+   * @param root
+   */
+
+  function deepArrayIn(data, root) {
+    var InnerData = function InnerData() {
+      babelHelpers.classCallCheck(this, InnerData);
+    };
+
+    var _loop2 = function _loop2(i, l) {
+      var _val = void 0,
+          _deps = [];
+
+      var InnerDataNoop = function (_InnerData2) {
+        babelHelpers.inherits(InnerDataNoop, _InnerData2);
+
+        function InnerDataNoop() {
+          babelHelpers.classCallCheck(this, InnerDataNoop);
+
+          var _this3 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(InnerDataNoop).call(this));
+
+          if (Array.isArray(data[i])) {
+            var InnerDataClass = deepArrayIn(data[i], root);
+            _this3[i] = _val = new InnerDataClass();
+          } else if (babelHelpers.typeof(data[i]) === 'object') {
+            var _InnerDataClass2 = deepObjectIn(data[i], Noop, root, 2);
+            _this3[i] = _val = new _InnerDataClass2();
+          } else {
+            _this3[i] = _val = data[i];
+          }
+          return _this3;
+        }
+
+        babelHelpers.createClass(InnerDataNoop, [{
+          key: i,
+          get: function get() {
+            _deps = dep.plusDeps(_deps);
+            return _val;
+          },
+          set: function set(value) {
+            if (value === _val) {
+              return;
+            }
+            console.log(i);
+            console.log(_deps);
+            dep.emitDeps.call(root, _deps);
+          }
+        }]);
+        return InnerDataNoop;
+      }(InnerData);
+
+      InnerData = InnerDataNoop;
+    };
+
+    for (var i = 0, l = data.length; i < l; i++) {
+      _loop2(i, l);
     }
 
     return InnerData;
@@ -371,6 +443,7 @@
           }
 
           _this2[item] = _val = computed[item].call(_this);
+
           if (addDep) {
             dep.now = null;
           } else {
@@ -391,19 +464,9 @@
         babelHelpers.createClass(ComputedNoop, [{
           key: item,
           get: function get() {
-            if (dep.now) {
-              var hasSame;
-              for (var i = 0, l = _deps.length; i < l; i++) {
-                if (_deps[i].name === dep.now.name) {
-                  hasSame = true;
-                  break;
-                }
-              }
 
-              if (!hasSame) {
-                _deps.push(dep.now);
-              }
-            }
+            dep.plusDeps(_deps);
+
             return _val;
           },
           set: function set(value) {

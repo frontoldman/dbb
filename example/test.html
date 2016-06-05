@@ -17,28 +17,18 @@
     var vm1 = MY({
         el: '#content',
         data: {
-            name: 'lily',
-            age: 18 ,
-            group: {
-                p3: {}
-            }
+            names: ['Lily']
         },
         computed: {
-            groupP3Name() {
-                return this.group.p3.name
-            },
-
-
-
+            name1() {
+                return this.names[0]
+            }
         }
     })
 
-
-    console.log(vm1.group.p3.name);
-    vm1.group.p3 = {name: 'lily'}
-    console.log(vm1.groupP3Name)
-
-
+   // console.log(vm1.name1)
+    vm1.names[0] = 'Tom';
+    //console.log(vm1.name1);
 
 
 </script>

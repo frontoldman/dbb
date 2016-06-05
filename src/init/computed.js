@@ -50,6 +50,7 @@ function getComputedClass(ComputedClass, computed, addDep, self) {
         }
 
         this[item] = _val = computed[item].call(_this);
+
         if (addDep) {
           dep.now = null;
         } else {
@@ -67,19 +68,9 @@ function getComputedClass(ComputedClass, computed, addDep, self) {
       }
 
       get [item]() {
-        if (dep.now) {
-          var hasSame;
-          for(let i = 0,l = _deps.length;i<l;i++){
-            if(_deps[i].name === dep.now.name){
-              hasSame = true;
-              break;
-            }
-          }
 
-          if(!hasSame){
-            _deps.push(dep.now);
-          }
-        }
+        dep.plusDeps(_deps);
+
         return _val;
       }
 

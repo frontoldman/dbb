@@ -47,7 +47,8 @@ function deepObjectIn(data, extendsClass, vm, type) {
         }
 
         if (Array.isArray(data[innerItem])) {
-
+          let InnerDataClass = deepArrayIn(data[innerItem], extendInstance);
+          this[innerItem] = _val = new InnerDataClass();
         } else if (typeof data[innerItem] === 'object') {
           let InnerDataClass = deepObjectIn(data[innerItem], Noop, extendInstance, 2);
           this[innerItem] = _val = new InnerDataClass();
@@ -57,22 +58,7 @@ function deepObjectIn(data, extendsClass, vm, type) {
       }
 
       get [innerItem]() {
-
-        if (dep.now !== null) {
-
-          var hasSame;
-          for(let i = 0,l = _deps.length;i<l;i++){
-            if(_deps[i].name === dep.now.name){
-              hasSame = true;
-              break;
-            }
-          }
-          
-          if(!hasSame){
-            _deps.push(dep.now);
-          }
-        }
-
+        dep.plusDeps(_deps);
         return _val;
       }
 
@@ -81,7 +67,6 @@ function deepObjectIn(data, extendsClass, vm, type) {
         if (value === _val) {
           return;
         }
-
 
         /**
          * 判断type, 确保this是根节点
@@ -94,6 +79,9 @@ function deepObjectIn(data, extendsClass, vm, type) {
           self = extendInstance;
         }
 
+        /**
+         * 如果是数组,深入监听
+         */
         if (Array.isArray(value)) {
 
           /**
@@ -109,8 +97,6 @@ function deepObjectIn(data, extendsClass, vm, type) {
           _val = value;
         }
 
-        console.log(_deps);
-
         dep.emitDeps.call(self, _deps)
       }
     }
@@ -125,23 +111,46 @@ function deepObjectIn(data, extendsClass, vm, type) {
 /**
  * 判断data值是否是数组, 是的话首先观察, 数组已经被转换成了对象
  * @param data
- * @param item
  * @param root
  */
 
-function deepArrayIn(data, item, root) {
+function deepArrayIn(data, root) {
   class InnerData {
   }
 
   for (let i = 0, l = data.length; i < l; i++) {
     let _val, _deps = [];
-
     class InnerDataNoop extends InnerData {
       constructor() {
         super()
+
+        if (Array.isArray(data[i])) {
+          let InnerDataClass = deepArrayIn(data[i], root);
+          this[i] = _val = new InnerDataClass();
+        } else if (typeof data[i] === 'object') {
+          let InnerDataClass = deepObjectIn(data[i], Noop, root, 2);
+          this[i] = _val = new InnerDataClass();
+        } else {
+          this[i] = _val = data[i];
+        }
       }
 
+      get [i]() {
+        dep.plusDeps(_deps);
+        return _val;
+      }
+
+      set [i](value) {
+        if (value === _val) {
+          return;
+        }
+        console.log(i)
+        console.log(_deps)
+        dep.emitDeps.call(root, _deps)
+      }
     }
+
+    InnerData = InnerDataNoop;
   }
 
   return InnerData;

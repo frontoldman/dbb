@@ -20,5 +20,25 @@ export default {
       computedObj = deps[i];
       this[computedObj.name] = computedObj.fn.call(this)
     }
+  },
+
+  /**
+   * 添加字段依赖
+   * @param _deps
+   */
+
+  plusDeps: function(_deps) {
+
+    if (this.now !== null) {
+      for(let i = 0,l = _deps.length;i<l;i++){
+        if(_deps[i].name === this.now.name){
+          return;
+        }
+      }
+      _deps.push(this.now);
+    }
+
+    return _deps;
   }
+
 }
