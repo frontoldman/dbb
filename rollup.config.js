@@ -7,6 +7,6 @@ export default {
   entry: 'src/index.js',
   format: 'umd',
   plugins: [ babel() ],
-  moduleName: 'MY',
+  moduleName: 'DBB',
   dest: 'dist/bundle.js'
 }

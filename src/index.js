@@ -1,25 +1,30 @@
-/**
- * Created by zhangran on 16/5/31.
- */
-import Event from "./event/event";
-import initData from "./init/data";
-import initComputed from "./init/computed";
+import { getType } from './utils'
+import dataInit from './data/index.js'
 
+function DBB(config) {
 
-export default function (options) {
-  const $el = document.querySelector(options.el);
-  const {data, computed} = options;
+	if(!(this instanceof DBB)){
+		return new DBB(config);
+	}
 
-  class MY extends Event {
-  }
+	var bootElem = document.querySelector(config.el);
+	
+	var data = config.data;
+	var computed = config.computed;
 
-  MY = initData(data, MY);
-  MY = initComputed(computed, MY);
+	if(data && getType(data) !== 'object'){
+		throw new Error('option data must be Object type');
+	}
 
-  const vm = new MY();
+	if(computed && getType(computed) !== 'object'){
+		throw new Error('option computed must be Object type');
+	}
 
-  return vm;
+	dataInit(data, this);
+
 }
+
+export default DBB;
 
 
 

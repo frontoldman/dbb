@@ -14,7 +14,7 @@
 
 <script src="../dist/bundle.js"></script>
 <script>
-    var vm = MY({
+    var vm = DBB({
         el: '#content',
         data: {
             names: ['Lily'],
@@ -29,13 +29,7 @@
         }
     })
 
-    console.log(vm.name)
-    vm.names = ['Tom']
-    console.log(vm.name)
-
-//    console.log(vm.name)
-//    vm.p = { name: 'Tom' }
-//    console.log(vm.name)
+    console.log(vm.names)
 
 </script>
 </body>

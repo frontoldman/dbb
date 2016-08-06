@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/frontoldman/MY.git"
+    "url": "https://github.com/frontoldman/dbb.git"
   },
   "keywords": [
     "MVVM"
@@ -17,9 +17,9 @@
   "author": "zr",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/frontoldman/MY/issues"
+    "url": "https://github.com/frontoldman/dbb/issues"
   },
-  "homepage": "https://github.com/frontoldman/MY",
+  "homepage": "https://github.com/frontoldman/dbb",
   "devDependencies": {
     "babel-preset-es2015-rollup": "^1.1.1",
     "rollup-plugin-babel": "^2.4.0"

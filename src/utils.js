@@ -1,18 +1,15 @@
-/**
- * Created by zhangran on 16/6/1.
- */
+const typeReg = /\[object\s+(.*)\]/;
 
-/**
- * 转换类数组对象为数组
- * @param arrryLike
- * @returns {Array.<*>}
- */
-
-export function slice(arrryLike, start = 0) {
-  return [].slice.call(arrryLike, start)
+export function isArray(obj){
+	return Array.isArray(obj);
 }
 
 
-export function extend() {
-
+export function getType(obj){
+	var typeString = Object.prototype.toString.call(obj);
+	var result = typeString.match(typeReg);
+	if(result && result.length){
+		return result[1].toLowerCase();
+	}
+	return obj;
 }
