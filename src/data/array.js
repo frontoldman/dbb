@@ -1,1 +1,5 @@
-array.js
+
+
+export default function loopArray(){
+	
+}

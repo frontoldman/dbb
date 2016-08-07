@@ -17,10 +17,15 @@
     var vm = DBB({
         el: '#content',
         data: {
-            names: ['Lily'],
+            age: 11,
+            names: ['Lily', 'lucy'],
             p: {
-
+                name: '我是p',
+                room: {
+                    name: '我是room'
+                }
             }
+
         },
         computed: {
             name() {
@@ -29,7 +34,7 @@
         }
     })
 
-    console.log(vm.names)
+    console.log(vm)
 
 </script>
 </body>

@@ -4,6 +4,14 @@
 	(global.DBB = factory());
 }(this, function () { 'use strict';
 
+	var babelHelpers = {};
+	babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+	  return typeof obj;
+	} : function (obj) {
+	  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+	};
+	babelHelpers;
+
 	var typeReg = /\[object\s+(.*)\]/;
 
 	function getType(obj) {
@@ -15,22 +23,51 @@
 		return obj;
 	}
 
-	function dataInit (data, vm) {
+	function loopArray() {}
 
+	function protptypeDefine(outValue, key, vm) {
+		var _val = outValue;
+		Object.defineProperty(vm, key, {
+			enumerable: true,
+			configurable: false,
+			set: function set(value) {
+				if (value !== _val) {
+					_val = value;
+				}
+			},
+			get: function get() {
+				return _val;
+			}
+		});
+	}
+
+	function loopObject(value, vm, deepLoopIn) {
+		Object.keys(value).forEach(function (item) {
+			var valTager = value[item];
+			protptypeDefine(valTager, item, value);
+			if ((typeof valTager === 'undefined' ? 'undefined' : babelHelpers.typeof(valTager)) === 'object') {
+				deepLoopIn(valTager, value);
+			}
+		});
+	}
+
+	function deepLoopIn(val, vm) {
+		var typeOfItem = getType(val);
+
+		switch (typeOfItem) {
+			case 'array':
+				loopArray(val, vm, deepLoopIn);
+				break;
+			case 'object':
+				loopObject(val, vm, deepLoopIn);
+				break;
+		}
+	}
+
+	function dataInit (data, vm) {
 		for (var key in data) {
-			(function () {
-				var _val = data[key];
-				Object.defineProperty(vm, key, {
-					enumerable: true,
-					configurable: false,
-					set: function set(value) {
-						_val = value;
-					},
-					get: function get() {
-						return _val;
-					}
-				});
-			})();
+			protptypeDefine(data[key], key, vm);
+			deepLoopIn(data[key], vm[key]);
 		}
 	}
 
