@@ -1,5 +1,7 @@
 import { getType } from './utils'
-import dataInit from './data/index.js'
+import dataInit from './data/index'
+import compiler from './compiler/index'
+
 
 function DBB(config) {
 
@@ -20,7 +22,11 @@ function DBB(config) {
 		throw new Error('option computed must be Object type');
 	}
 
+	// this.directives = directives;
+
 	dataInit(data, this);
+	compiler(bootElem, this);
+
 
 }
 
