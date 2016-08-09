@@ -9,7 +9,7 @@
 <div id="content">
     {{ message }}
     {{ name }}
-    <div bind="age"></div>
+    <div bind="age + year"></div>
     <div title="title"></div>
 </div>
 
@@ -19,6 +19,7 @@
         el: '#content',
         data: {
             age: 11,
+            year: 5,
             names: ['Lily', 'lucy'],
             p: {
                 name: '我是p',
@@ -36,7 +37,7 @@
 
     console.log(vm)
 
-    
+
 
 </script>
 </body>

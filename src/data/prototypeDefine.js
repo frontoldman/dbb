@@ -10,7 +10,6 @@ export default function protptypeDefine(outValue, key, vm) {
 	  	if(value !== _val){
 	  		_val = value;
 	  		elems.forEach(elem => {
-	  			console.log(elem)
 	  			elem.directive(elem.target, elem.express(vm));
 	  		})
 	  	}

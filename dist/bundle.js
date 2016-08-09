@@ -35,6 +35,48 @@
 
 	var directives = [bind];
 
+	function path (nodeValue) {
+		var l = nodeValue.length;
+		var pathString = '';
+		var valAry = [];
+
+		for (var i = 0; i < l; i++) {
+			var charOfValue = nodeValue.charAt(i);
+			console.log(charOfValue);
+			switch (charOfValue) {
+				case '+':
+					//+
+					if (i !== 0) {
+						pathString += 'vm.' + valAry.join('');
+					}
+
+					pathString += ' + ';
+					valAry = [];
+					break;
+				case '-':
+					break;
+				case '*':
+					break;
+				case '/':
+					break;
+				case ' ':
+					console.log(11);
+					break;
+				default:
+					valAry.push(charOfValue);
+					break;
+			}
+		}
+
+		if (valAry.length) {
+			pathString += 'vm.' + valAry.join('');
+		}
+
+		console.log(pathString);
+
+		return pathString;
+	}
+
 	var element = {
 		target: null,
 		express: '',
@@ -49,28 +91,7 @@
 			switch (childElem.nodeType) {
 				case 1:
 					//dom节点
-					var attributes = childElem.attributes;
-					var attrArray = toArray(attributes);
-
-					attrArray.forEach(function (attr) {
-						var nodeName = attr.nodeName;
-						var nodeValue = attr.nodeValue;
-
-						nodeName = nodeName.toLowerCase();
-
-						directives.forEach(function (directive) {
-							if (directive.directiveName === nodeName) {
-
-								element.target = childElem;
-								element.express = createFn(nodeValue);
-								element.directive = directive;
-								directive(childElem, vm[nodeValue]);
-								element.target = null;
-								element.express = '', element.directive = null;
-							}
-						});
-					});
-
+					compileNode(childElem, vm);
 					break;
 				case 3:
 					//文本节点
@@ -80,8 +101,34 @@
 		});
 	}
 
-	function createFn(path) {
-		return new Function("vm", "return vm." + path);
+	function createFn(pathString) {
+		return new Function("vm", "return " + pathString);
+	}
+
+	//处理文本节点
+	function compileNode(childElem, vm) {
+		var attributes = childElem.attributes;
+		var attrArray = toArray(attributes);
+
+		attrArray.forEach(function (attr) {
+			var nodeName = attr.nodeName;
+			var nodeValue = attr.nodeValue;
+
+			nodeName = nodeName.toLowerCase();
+
+			directives.forEach(function (directive) {
+				if (directive.directiveName === nodeName) {
+
+					element.target = childElem;
+					var pathString = path(nodeValue);
+					element.express = createFn(pathString);
+					element.directive = directive;
+					directive(childElem, element.express(vm));
+					element.target = null;
+					element.express = '', element.directive = null;
+				}
+			});
+		});
 	}
 
 	function protptypeDefine(outValue, key, vm) {
@@ -94,7 +141,6 @@
 				if (value !== _val) {
 					_val = value;
 					elems.forEach(function (elem) {
-						console.log(elem);
 						elem.directive(elem.target, elem.express(vm));
 					});
 				}
