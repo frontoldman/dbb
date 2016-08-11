@@ -1,5 +1,6 @@
 import { getType } from './utils'
 import dataInit from './data/index'
+import computedInit from './computed/index'
 import compiler from './compiler/index'
 
 
@@ -25,6 +26,7 @@ function DBB(config) {
 	// this.directives = directives;
 
 	dataInit(data, this);
+	computedInit(computed, this);
 	compiler(bootElem, this);
 
 

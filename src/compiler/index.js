@@ -27,6 +27,7 @@ export default function(el, vm) {
 }
 
 function createFn(pathString) {
+	//console.log(pathString)
 	return new Function("vm", "return " + pathString);
 }
 

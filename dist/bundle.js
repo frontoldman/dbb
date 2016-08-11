@@ -40,27 +40,102 @@
 		var pathString = '';
 		var valAry = [];
 
+		var inSingleQuotes = false;
+		var isOperator = false;
+		var isNumber = false;
+		var isParenthesis = false;
+
 		for (var i = 0; i < l; i++) {
 			var charOfValue = nodeValue.charAt(i);
-			console.log(charOfValue);
+
+			//在单引号内部
+			if (inSingleQuotes && charOfValue !== "'") {
+				valAry.push(charOfValue);
+				continue;
+			}
+
+			if (!valAry.length && /\d/.test(charOfValue)) {
+				isNumber = true;
+				pathString += charOfValue;
+				continue;
+			}
+
+			isNumber = false;
+
 			switch (charOfValue) {
 				case '+':
 					//+
-					if (i !== 0) {
-						pathString += 'vm.' + valAry.join('');
-					}
-
+					reset();
 					pathString += ' + ';
-					valAry = [];
 					break;
 				case '-':
+					reset();
+					pathString += ' - ';
 					break;
 				case '*':
+					reset();
+					pathString += ' * ';
 					break;
 				case '/':
+					reset();
+					pathString += ' / ';
 					break;
 				case ' ':
-					console.log(11);
+					pathString += charOfValue;
+					break;
+				case '(':
+					reset();
+					pathString += ' ( ';
+					break;
+				case ')':
+					reset();
+					pathString += ' ) ';
+					break;
+				case "'":
+					if (inSingleQuotes) {
+						inSingleQuotes = false;
+						valAry.push("'");
+						pathString += valAry.join('');
+						valAry = [];
+					} else {
+						reset();
+						inSingleQuotes = true;
+						valAry.push("'");
+					}
+					break;
+				case '!':
+					reset();
+					pathString += '!';
+					break;
+				case '[':
+					reset();
+					isParenthesis = true;
+					pathString += '[';
+					break;
+				case ']':
+					isParenthesis = false;
+					reset();
+					valAry = [];
+					pathString += ']';
+					break;
+				case '?':
+					reset();
+					pathString += '?';
+					break;
+				case ':':
+					reset();
+					pathString += ':';
+					break;
+				case '|':
+				case '&':
+					if (valAry.length === 1 && valAry[0] === charOfValue) {
+						valAry.push(charOfValue);
+						pathString += charOfValue + charOfValue;
+						valAry = [];
+					} else {
+						reset();
+						valAry.push(charOfValue);
+					}
 					break;
 				default:
 					valAry.push(charOfValue);
@@ -72,7 +147,12 @@
 			pathString += 'vm.' + valAry.join('');
 		}
 
-		console.log(pathString);
+		function reset() {
+			if (i !== 0 && valAry.length) {
+				pathString += 'vm.' + valAry.join('');
+			}
+			valAry = [];
+		}
 
 		return pathString;
 	}
@@ -102,6 +182,7 @@
 	}
 
 	function createFn(pathString) {
+		//console.log(pathString)
 		return new Function("vm", "return " + pathString);
 	}
 
@@ -131,7 +212,7 @@
 		});
 	}
 
-	function protptypeDefine(outValue, key, vm) {
+	function protptypeDefine(outValue, key, vm, root) {
 		var _val = outValue,
 		    elems = [];
 		Object.defineProperty(vm, key, {
@@ -141,7 +222,7 @@
 				if (value !== _val) {
 					_val = value;
 					elems.forEach(function (elem) {
-						elem.directive(elem.target, elem.express(vm));
+						elem.directive(elem.target, elem.express(root));
 					});
 				}
 			},
@@ -158,7 +239,7 @@
 		});
 	}
 
-	function loopArray(value, vm, deepLoopIn) {
+	function loopArray(value, vm, deepLoopIn, root) {
 
 		['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'].forEach(function (method) {
 			vm[method] = function () {
@@ -168,41 +249,60 @@
 
 		for (var i = 0, l = value.length; i < l; i++) {
 			var valTager = value[i];
-			protptypeDefine(valTager, i, value);
+			protptypeDefine(valTager, i, value, root);
 			if ((typeof valTager === 'undefined' ? 'undefined' : babelHelpers.typeof(valTager)) === 'object') {
-				deepLoopIn(valTager, value);
+				deepLoopIn(valTager, value, root);
 			}
 		}
 	}
 
-	function loopObject(value, vm, deepLoopIn) {
+	function loopObject(value, vm, deepLoopIn, root) {
 		Object.keys(value).forEach(function (item) {
 			var valTager = value[item];
-			protptypeDefine(valTager, item, value);
+			protptypeDefine(valTager, item, vm, root);
 			if ((typeof valTager === 'undefined' ? 'undefined' : babelHelpers.typeof(valTager)) === 'object') {
-				deepLoopIn(valTager, value);
+				deepLoopIn(valTager, vm[item], root);
 			}
 		});
 	}
 
-	function deepLoopIn(val, vm) {
+	/**
+	*	val: 值
+	**/
+	function deepLoopIn(val, vm, root) {
 		var typeOfItem = getType(val);
 
 		switch (typeOfItem) {
 			case 'array':
-				loopArray(val, vm, deepLoopIn);
+				loopArray(val, vm, deepLoopIn, root);
 				break;
 			case 'object':
-				loopObject(val, vm, deepLoopIn);
+				loopObject(val, vm, deepLoopIn, root);
 				break;
 		}
 	}
 
 	function dataInit (data, vm) {
 		for (var key in data) {
-			protptypeDefine(data[key], key, vm);
-			deepLoopIn(data[key], vm[key]);
+			protptypeDefine(data[key], key, vm, vm);
+			deepLoopIn(data[key], vm[key], vm);
 		}
+	}
+
+	function computedInit (computed, vm) {
+		Object.keys(computed).forEach(function (key) {
+			var valFn = computed[key];
+			valFn = valFn.bind(vm);
+
+			Object.defineProperty(vm, key, {
+				enumerable: true,
+				configurable: false,
+				set: function set(value) {},
+				get: function get() {
+					return valFn();
+				}
+			});
+		});
 	}
 
 	function DBB(config) {
@@ -227,6 +327,7 @@
 		// this.directives = directives;
 
 		dataInit(data, this);
+		computedInit(computed, this);
 		compiler(bootElem, this);
 	}
 

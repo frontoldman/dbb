@@ -1,0 +1,24 @@
+import Dep from '../Dep'
+
+export default function(computed, vm) {
+	Object.keys(computed).forEach(key => {
+		var valFn = computed[key];
+		valFn = valFn.bind(vm);
+
+		var _val = ''
+
+		Object.defineProperty(vm, key, {
+		  enumerable: true,
+		  configurable: false,
+		  set(value) {
+		  	
+		  },
+		  get() {
+		  	Dep.now = key;
+		  	_val = valFn();
+		  	Dep.now = null;
+		  	return _val;
+		  }
+		});
+	})
+}

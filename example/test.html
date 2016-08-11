@@ -7,9 +7,8 @@
 <body>
 
 <div id="content">
-    {{ message }}
-    {{ name }}
-    <div bind="age + year"></div>
+    <div bind="p.room"></div>
+    <div bind="name"></div>
     <div title="title"></div>
 </div>
 
@@ -18,24 +17,25 @@
     var vm = DBB({
         el: '#content',
         data: {
-            age: 11,
+            index: 0,
+            age: 1,
             year: 5,
+            isGirl: true,
+            isC: false,
+            isA: true,
             names: ['Lily', 'lucy'],
             p: {
-                name: '我是p',
-                room: {
-                    name: '我是room'
-                }
-            }
+                room: '我是room'
+            },
         },
         computed: {
             name() {
-                return this.names[0]
+                return this.p.room
             }
         }
     })
 
-    console.log(vm)
+    //console.log(vm)
 
 
 
