@@ -7,13 +7,15 @@
 <body>
 
 <div id="content">
+    <div bind="age"></div>
     <div bind="p.room"></div>
-    <div bind="name"></div>
+    <div bind="names.join(',')"></div>
     <div title="title"></div>
 </div>
 
 <script src="../dist/bundle.js"></script>
 <script>
+
     var vm = DBB({
         el: '#content',
         data: {
@@ -23,7 +25,7 @@
             isGirl: true,
             isC: false,
             isA: true,
-            names: ['Lily', 'lucy'],
+            names: ['Lily', 'lucy', 'Jim', 'Tom'],
             p: {
                 room: '我是room'
             },
@@ -35,7 +37,7 @@
         }
     })
 
-    //console.log(vm)
+    console.log(vm)
 
 
 

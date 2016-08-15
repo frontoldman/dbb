@@ -1,6 +1,6 @@
 import { getType } from './utils'
-import dataInit from './data/index'
-import computedInit from './computed/index'
+import dataInit from './model/data/index'
+import computedInit from './model/computed/index'
 import compiler from './compiler/index'
 
 

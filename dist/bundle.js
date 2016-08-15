@@ -212,21 +212,50 @@
 		});
 	}
 
+	var Dep = {
+		now: null
+	};
+
+	//执行依赖集合
+	function excute (elems, relays, root) {
+
+		elems.forEach(function (elem) {
+			elem.directive(elem.target, elem.express(root));
+		});
+
+		relays.forEach(function (relay) {
+			var valFn = relay.valFn;
+			var key = relay.key;
+			root[key] = valFn();
+		});
+	}
+
 	function protptypeDefine(outValue, key, vm, root) {
-		var _val = outValue,
-		    elems = [];
+		var _val,
+		    isComputed = false,
+		    _valFn,
+		    elems = [],
+		    relays = [];
+
+		if (typeof outValue === 'function') {
+			isComputed = true;
+			_valFn = outValue.bind(vm);
+			_val = undefined;
+		} else {
+			_val = outValue;
+		}
+
 		Object.defineProperty(vm, key, {
 			enumerable: true,
-			configurable: false,
+			configurable: true,
 			set: function set(value) {
 				if (value !== _val) {
 					_val = value;
-					elems.forEach(function (elem) {
-						elem.directive(elem.target, elem.express(root));
-					});
+					excute(elems, relays, root);
 				}
 			},
 			get: function get() {
+
 				if (element.target) {
 					elems.push({
 						target: element.target,
@@ -234,34 +263,112 @@
 						directive: element.directive
 					});
 				}
+
+				if (Dep.now) {
+					relays.push({
+						key: Dep.now,
+						valFn: Dep.valFn
+					});
+				}
+
+				if (isComputed && !_val) {
+					Dep.now = key;
+					Dep.valFn = _valFn;
+					_val = _valFn();
+					Dep.now = null;
+					Dep.valFn = null;
+				}
+
 				return _val;
 			}
 		});
+
+		return {
+			elems: elems,
+			relays: relays
+		};
 	}
 
-	function loopArray(value, vm, deepLoopIn, root) {
+	//数组的监听
+	function loopArray(value, vm, deepLoopIn, deps, root) {
+		var i = 0,
+		    l = value.length;
 
 		['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'].forEach(function (method) {
+			var originMethod = value[method];
+
 			vm[method] = function () {
-				value[method].apply(toArray(arguments));
+				var args = toArray(arguments);
+				var result = originMethod.apply(value, args);
+
+				switch (method) {
+					case 'push':
+						//末尾插入元素
+						defOrDeep(value, l, vm, root);
+						break;
+					case 'pop':
+						//删除末尾元素
+						delete vm[l - 1];
+						break;
+					case 'shift':
+						//删除头部元素
+						for (i = 0; i < l - 1; i++) {
+							vm[i] = vm[i + 1];
+						}
+						delete vm[i];
+						break;
+					case 'unshift':
+						//往头部添加元素
+						var changeSize = result - l;
+						for (i = result - 1; i >= 0; i--) {
+							if (i < changeSize) {
+								vm[i] = value[i];
+							} else {
+								vm[i] = vm[i - changeSize];
+							}
+						}
+						break;
+				}
+
+				l = value.length;
+				vm.length = l;
+
+				excute(deps.elems, deps.relays, root);
+
+				//push unshift splice
 			};
 		});
 
-		for (var i = 0, l = value.length; i < l; i++) {
-			var valTager = value[i];
-			protptypeDefine(valTager, i, value, root);
-			if ((typeof valTager === 'undefined' ? 'undefined' : babelHelpers.typeof(valTager)) === 'object') {
-				deepLoopIn(valTager, value, root);
-			}
+		vm['join'] = function (chart) {
+			return toArray(vm).join(chart);
+		};
+
+		for (; i < l; i++) {
+			defOrDeep(value, i, vm, root);
+		}
+
+		vm.length = l;
+	}
+
+	//定义或者深入
+	function defOrDeep(value, i, vm, root) {
+		var valTarget = value[i];
+
+		if ((typeof valTarget === 'undefined' ? 'undefined' : babelHelpers.typeof(valTarget)) === 'object') {
+			deepLoopIn(valTarget, i, vm, root);
+		} else {
+			protptypeDefine(valTarget, i, vm, root);
 		}
 	}
 
 	function loopObject(value, vm, deepLoopIn, root) {
-		Object.keys(value).forEach(function (item) {
-			var valTager = value[item];
-			protptypeDefine(valTager, item, vm, root);
-			if ((typeof valTager === 'undefined' ? 'undefined' : babelHelpers.typeof(valTager)) === 'object') {
-				deepLoopIn(valTager, vm[item], root);
+		Object.keys(value).forEach(function (key) {
+			var valTarget = value[key];
+
+			if ((typeof valTarget === 'undefined' ? 'undefined' : babelHelpers.typeof(valTarget)) === 'object') {
+				deepLoopIn(valTarget, key, vm, root);
+			} else {
+				protptypeDefine(valTarget, key, vm, root);
 			}
 		});
 	}
@@ -269,39 +376,34 @@
 	/**
 	*	val: 值
 	**/
-	function deepLoopIn(val, vm, root) {
+	function deepLoopIn$1(val, key, vm, root) {
 		var typeOfItem = getType(val);
 
 		switch (typeOfItem) {
 			case 'array':
-				loopArray(val, vm, deepLoopIn, root);
+				var deps = protptypeDefine({}, key, vm, root);
+				loopArray(val, vm[key], deepLoopIn$1, deps, root);
 				break;
 			case 'object':
-				loopObject(val, vm, deepLoopIn, root);
+				protptypeDefine({}, key, vm, root);
+				loopObject(val, vm[key], deepLoopIn$1, root);
 				break;
 		}
 	}
 
 	function dataInit (data, vm) {
 		for (var key in data) {
-			protptypeDefine(data[key], key, vm, vm);
-			deepLoopIn(data[key], vm[key], vm);
+			if (babelHelpers.typeof(data[key]) === 'object') {
+				deepLoopIn$1(data[key], key, vm, vm);
+			} else {
+				protptypeDefine(data[key], key, vm, vm);
+			}
 		}
 	}
 
 	function computedInit (computed, vm) {
 		Object.keys(computed).forEach(function (key) {
-			var valFn = computed[key];
-			valFn = valFn.bind(vm);
-
-			Object.defineProperty(vm, key, {
-				enumerable: true,
-				configurable: false,
-				set: function set(value) {},
-				get: function get() {
-					return valFn();
-				}
-			});
+			protptypeDefine(computed[key], key, vm, vm);
 		});
 	}
 

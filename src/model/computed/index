@@ -1,0 +1,8 @@
+import Dep from '../../Dep'
+import prototypeDefine from '../prototypeDefine'
+
+export default function(computed, vm) {
+	Object.keys(computed).forEach(key => {
+		prototypeDefine(computed[key], key, vm, vm);
+	})
+}
